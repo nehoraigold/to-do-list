@@ -1,0 +1,77 @@
+body {
+    height:100%;
+    width:100%;
+    background-image:url(../images/water.jpg);
+    background-size:cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.top-menu {
+    height:40px;
+}
+
+.side-menu {
+    display:inline-block;
+    width:15%;
+    height:calc(100% - 40px)
+}
+
+.all-list-titles {
+    all:unset;
+    text-align: center;
+}
+
+.all-list-titles li {
+    margin:5px;
+    padding:20px 1vw;
+    font-size:2vw;
+    color:white;
+    border-radius:10px;
+}
+.dark.blue {
+    background-color:rgba(0, 70, 155, 0.9)
+}
+
+.normal.blue {
+    background-color: rgba(0, 122, 197, 0.7)
+}
+
+.light.blue {
+    background-color:rgba(0, 159, 232, 0.3)
+}
+
+.current-list {
+    width:85%;
+    height:calc(100% - 40px);
+    display:inline-block;
+    vertical-align: top;
+    padding:20px;
+    box-sizing:border-box;
+}
+
+.list {
+    width:400px;
+}
+
+.list-title {
+    padding:5px 10px;
+    color:white;
+    font-size:40px;
+}
+
+.list .card {
+    border-radius:10px;
+    background-color:rgb(255,255,255);
+    width:calc(100% - 6px);
+    margin:2px;
+}
+
+.list .card span {
+    display:inline-block;
+    padding:0 0.5rem;
+}
+
+.list .card label {
+    all:unset;
+}
