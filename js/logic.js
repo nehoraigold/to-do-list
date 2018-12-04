@@ -1,10 +1,16 @@
 class ListItem extends React.Component {
     constructor(props) {
         super(props);
+        this.removeItem = this.removeItem.bind(this);
         this.state = {
             completed: false,
-            starred: false
+            starred: false,
+            itemObj: this.props.itemObj
         }
+    }
+
+    removeItem() {
+        this.props.handleRemoveItem(this.state.itemObj);
     }
 
     render() {
@@ -13,7 +19,12 @@ class ListItem extends React.Component {
                 <div className='card-body'>
                     <label>
                         <span><input type='checkbox' className='add-item'/></span>
-                        <span>{this.props.item.task}</span>
+                        <span>{this.state.itemObj.task}</span>
+                        <span className="edit-item" onClick={this.removeItem}>
+                            <div className="edit-item-dot"></div>
+                            <div className="edit-item-dot"></div>
+                            <div className="edit-item-dot"></div>
+                        </span>
                     </label>
                 </div>
             </div>
@@ -59,6 +70,7 @@ class List extends React.Component {
     constructor(props) {
         super(props);
         this.addItemToList = this.addItemToList.bind(this);
+        this.removeItemFromList = this.removeItemFromList.bind(this);
         this.state = {
             listItems: []
         }
@@ -73,13 +85,22 @@ class List extends React.Component {
         })
     }
 
+    removeItemFromList(item) {
+        var allItemsAsString = JSON.stringify(this.state.listItems);
+        var allItems = JSON.parse(allItemsAsString);
+        var allItemsExceptRemovedOne = allItems.filter((task) => task.id !== item.id);
+        this.setState({
+            listItems: allItemsExceptRemovedOne
+        })
+    }
+
     render() {
         return (
             <div className='list'>
                 <h3 className='list-title'>To Do</h3>
                 <AddListItem handleAdd={this.addItemToList} />
                 <div className='list-items'>
-                    {this.state.listItems.map(item => <ListItem key={item.id} item={item}/>)}
+                    {this.state.listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList}/>)}
                 </div>
             </div>
         )
