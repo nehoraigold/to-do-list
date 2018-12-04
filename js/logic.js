@@ -18,13 +18,13 @@ class ListItem extends React.Component {
             <div className='card'>
                 <div className='card-body'>
                     <label>
-                        <span><input type='checkbox' className='add-item'/></span>
-                        <span>{this.state.itemObj.task}</span>
-                        <span className="edit-item" onClick={this.removeItem}>
+                        <div className='checkbox-container'><input type='checkbox' className='add-item'/></div>
+                        <div className='task-container'>{this.state.itemObj.task}</div>
+                        <div className="edit-item" onClick={this.removeItem}>
                             <div className="edit-item-dot"></div>
                             <div className="edit-item-dot"></div>
                             <div className="edit-item-dot"></div>
-                        </span>
+                        </div>
                     </label>
                 </div>
             </div>
