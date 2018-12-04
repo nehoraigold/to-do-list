@@ -18,7 +18,7 @@ class ListItem extends React.Component {
             <div className='card'>
                 <div className='card-body'>
                     <label>
-                        <div className='checkbox-container'><input type='checkbox' className='add-item'/></div>
+                        <div className='checkbox-container'><input type='checkbox' className='add-item' /></div>
                         <div className='task-container'>{this.state.itemObj.task}</div>
                         <div className="edit-item" onClick={this.removeItem}>
                             <div className="edit-item-dot"></div>
@@ -51,14 +51,14 @@ class AddListItem extends React.Component {
             this.props.handleAdd(newItem);
             this.input.value = "";
         }
-        
+
     }
 
     render() {
         return (
             <div className='card'>
                 <div className='card-body'>
-                    <input type='text' placeholder='Add a new task...' className='add-item' ref={(input) => this.input = input} onKeyUp={this.createListItem}/>
+                    <input type='text' placeholder='Add a new task...' className='add-item' ref={(input) => this.input = input} onKeyUp={this.createListItem} />
                     <button className='btn add-button' onClick={this.createListItem}>Add</button>
                 </div>
             </div>
@@ -75,7 +75,6 @@ class List extends React.Component {
             listTitle: this.props.listObj.listTitle,
             listItems: this.props.listObj.listItems
         }
-        console.log(this.state)
     }
 
     addItemToList(item) {
@@ -84,7 +83,7 @@ class List extends React.Component {
         allItems.push(item);
         this.setState({
             listItems: allItems
-        })
+        }, () => { this.props.updateList(this.state) })
     }
 
     removeItemFromList(item) {
@@ -93,18 +92,20 @@ class List extends React.Component {
         var allItemsExceptRemovedOne = allItems.filter((task) => task.id !== item.id);
         this.setState({
             listItems: allItemsExceptRemovedOne
-        })
+        }, () => { this.props.updateList(this.state) })
     }
 
     render() {
         return (
-            <div className='list'>
-                <h3 className='list-title'>{this.state.listTitle}</h3>
-                <AddListItem handleAdd={this.addItemToList} />
-                <div className='list-items'>
-                    {this.state.listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList}/>)}
+            this.props.visible ? (
+                <div className='list'>
+                    <h3 className='list-title'>{this.state.listTitle}</h3>
+                    <AddListItem handleAdd={this.addItemToList} />
+                    <div className='list-items'>
+                        {this.state.listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} />)}
+                    </div>
                 </div>
-            </div>
+            ) : false
         )
     }
 }
@@ -113,10 +114,16 @@ class SideMenu extends React.Component {
     constructor(props) {
         super(props);
         this.renderListTitles = this.renderListTitles.bind(this);
+        this.changeSelectedList = this.changeSelectedList.bind(this);
+    }
+
+    changeSelectedList(e) {
+        var newListIndex = parseInt(e.target.getAttribute("data-number"));
+        this.props.handleChangeList(newListIndex);
     }
 
     renderListTitles() {
-        return this.props.allLists.map(listObj => <li key={listObj.listTitle}>{listObj.listTitle}</li>)
+        return this.props.allLists.map((listObj, index) => <li className={`${this.props.currentList === index ? "current-list-title" : ""}`} key={index} data-number={index} onClick={this.changeSelectedList}>{listObj.listTitle}</li>)
     }
 
     render() {
@@ -142,8 +149,11 @@ class TopMenu extends React.Component {
 class App extends React.Component {
     constructor() {
         super();
+        this.renderLists = this.renderLists.bind(this);
+        this.updateList = this.updateList.bind(this);
+        this.changeList = this.changeList.bind(this);
         this.state = {
-            selectedList: "To Do",
+            selectedListIndex: 0,
             allLists: [
                 {
                     listTitle: "To Do",
@@ -158,16 +168,35 @@ class App extends React.Component {
     }
 
     updateList(listObject) {
-        //use this function to set state whenever list changes
+        var allListsAsString = JSON.stringify(this.state.allLists);
+        var allLists = JSON.parse(allListsAsString);
+        for (var i = 0; i < allLists.length; i++) {
+            if (allLists[i].listTitle === listObject.listTitle) {
+                allLists[i] = listObject
+            }
+        }
+        this.setState({
+            allLists: allLists
+        })
+    }
+
+    changeList(newListIndex) {
+        this.setState({
+            selectedListIndex: newListIndex
+        })
+    }
+
+    renderLists() {
+        return this.state.allLists.map((list, index) => <List key={index} listObj={list} updateList={this.updateList} visible={this.state.selectedListIndex === index ? true : false} />)
     }
 
     render() {
         return (
             <div>
                 <TopMenu />
-                <SideMenu allLists={this.state.allLists}/>
+                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} />
                 <div className='current-list light blue'>
-                    <List listObj={this.state.allLists[0]}/>
+                    {this.renderLists()}
                 </div>
             </div>
         )
