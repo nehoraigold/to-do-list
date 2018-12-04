@@ -75,3 +75,14 @@ body {
 .list .card label {
     all:unset;
 }
+
+.add-item {
+    outline:none;
+    border:0;
+}
+
+.add-button {
+    position:absolute;
+    top:15px;
+    right:20px;
+}
