@@ -28,19 +28,26 @@ class AddListItem extends React.Component {
         this.createListItem = this.createListItem.bind(this);
     }
 
-    createListItem() {
-        var newItem = {
-            task: this.input.value
+    createListItem(e) {
+        if (this.input.value.trim() === "") {
+            return false;
         }
-        this.props.handleAdd(newItem);
-        this.input.value = "";
+        if ((e.target.tagName === "INPUT" && e.keyCode === 13) || (e.target.tagName === "BUTTON")) {
+            var newItem = {
+                task: this.input.value,
+                id: Date.now()
+            }
+            this.props.handleAdd(newItem);
+            this.input.value = "";
+        }
+        
     }
 
     render() {
         return (
             <div className='card'>
                 <div className='card-body'>
-                    <input type='text' placeholder='Add a new task...' className='add-item' ref={(input) => this.input = input}/>
+                    <input type='text' placeholder='Add a new task...' className='add-item' ref={(input) => this.input = input} onKeyUp={this.createListItem}/>
                     <button className='btn add-button' onClick={this.createListItem}>Add</button>
                 </div>
             </div>
@@ -72,7 +79,7 @@ class List extends React.Component {
                 <h3 className='list-title'>To Do</h3>
                 <AddListItem handleAdd={this.addItemToList} />
                 <div className='list-items'>
-                    {this.state.listItems.map(item => <ListItem item={item}/>)}
+                    {this.state.listItems.map(item => <ListItem key={item.id} item={item}/>)}
                 </div>
             </div>
         )
