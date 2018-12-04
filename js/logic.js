@@ -72,8 +72,10 @@ class List extends React.Component {
         this.addItemToList = this.addItemToList.bind(this);
         this.removeItemFromList = this.removeItemFromList.bind(this);
         this.state = {
-            listItems: []
+            listTitle: this.props.listObj.listTitle,
+            listItems: this.props.listObj.listItems
         }
+        console.log(this.state)
     }
 
     addItemToList(item) {
@@ -97,7 +99,7 @@ class List extends React.Component {
     render() {
         return (
             <div className='list'>
-                <h3 className='list-title'>To Do</h3>
+                <h3 className='list-title'>{this.state.listTitle}</h3>
                 <AddListItem handleAdd={this.addItemToList} />
                 <div className='list-items'>
                     {this.state.listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList}/>)}
@@ -108,12 +110,21 @@ class List extends React.Component {
 }
 
 class SideMenu extends React.Component {
+    constructor(props) {
+        super(props);
+        this.renderListTitles = this.renderListTitles.bind(this);
+    }
+
+    renderListTitles() {
+        return this.props.allLists.map(listObj => <li key={listObj.listTitle}>{listObj.listTitle}</li>)
+    }
+
     render() {
         return (
             <div className='side-menu normal blue'>
                 <ul className='all-list-titles'>
-                    <li className='dark blue'>To Do</li>
-                    <li>Completed</li>
+                    {this.renderListTitles()}
+                    <li><div className='new-list-circle'>+</div></li>
                 </ul>
             </div>
         )
@@ -129,13 +140,34 @@ class TopMenu extends React.Component {
 }
 
 class App extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            selectedList: "To Do",
+            allLists: [
+                {
+                    listTitle: "To Do",
+                    listItems: []
+                },
+                {
+                    listTitle: "Completed",
+                    listItems: []
+                }
+            ]
+        }
+    }
+
+    updateList(listObject) {
+        //use this function to set state whenever list changes
+    }
+
     render() {
         return (
             <div>
                 <TopMenu />
-                <SideMenu />
+                <SideMenu allLists={this.state.allLists}/>
                 <div className='current-list light blue'>
-                    <List />
+                    <List listObj={this.state.allLists[0]}/>
                 </div>
             </div>
         )
