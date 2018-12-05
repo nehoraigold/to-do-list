@@ -28,12 +28,22 @@ body {
     font-size:2vw;
     color:white;
     border-radius:10px;
-    cursor: pointer
+    cursor: pointer;
+    transition: background-color .5s ease;
 }
 
 .all-list-titles li:hover {
     background-color: rgba(0, 122, 197, 0.7)
 }
+
+/* .all-list-titles .add-new-list {
+    border-radius:50%;
+    margin:auto;
+    width:8vw;
+    height:8vw;
+    list-style:none;
+    font-weight:800;
+} */
 
 .current-list-title {
     background-color:rgba(0, 70, 155, 0.9);
@@ -69,6 +79,7 @@ body {
     padding:5px 10px;
     color:white;
     font-size:40px;
+    text-shadow: 3px 3px 3px rgb(0, 70, 155);
 }
 
 .list .card {
@@ -76,6 +87,16 @@ body {
     background-color:rgb(255,255,255);
     width:calc(100% - 6px);
     margin:2px;
+}
+
+.list .card .card-body {
+    display:flex;
+    align-items:center;
+}
+
+.list .card.completed {
+    opacity:0.8;
+    text-decoration: line-through;
 }
 
 .list .card span {
@@ -105,19 +126,24 @@ body {
 }
 
 .list .card:hover .edit-item{
-    visibility: visible;
-}
-
-.list .card .edit-item {
-    visibility:hidden;
-    position:absolute;
-    right:10px;
-    padding:0;
+    opacity: 1;
+    transform:scale(1,1);
+    pointer-events: all;
     cursor:pointer;
 }
 
+.list .card .edit-item {
+    opacity:0;
+    transform:scale(.1,.1);
+    position:absolute;
+    right:10px;
+    padding:0;
+    pointer-events:none;
+    transition: all .5s ease;
+}
+
 .list .card .edit-item:hover .edit-item-dot {
-    background-color:rgba(0, 70, 155, 0.9)
+    background-color:rgba(0, 70, 155, 0.9);
 }
 
 .edit-item-dot {
@@ -126,9 +152,17 @@ body {
     border-radius:50%;
     background-color: rgba(0, 122, 197, 0.7);
     margin:3px 9px;
+    transition: background-color .5s ease;
 }
 
 .card .card-body .task-container, .card .card-body .checkbox-container {
     display:inline-block;
     margin: 0 0.5rem;
+}
+
+.no-items-completed-message {
+    margin-left:20px;
+    font-style: italic;
+    color:whitesmoke;
+    text-shadow: 1px 1px 1px rgb(0, 70, 155);
 }

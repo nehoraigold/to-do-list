@@ -1,31 +1,34 @@
 class ListItem extends React.Component {
     constructor(props) {
         super(props);
+        this.toggleChecked = this.toggleChecked.bind(this);
         this.removeItem = this.removeItem.bind(this);
-        this.state = {
-            completed: false,
-            starred: false,
-            itemObj: this.props.itemObj
-        }
+        this.state = this.props.itemObj;
+    }
+
+    toggleChecked() {
+        this.setState({
+            completed: !this.state.completed
+        }, () => { this.props.handleComplete(this.state) })
     }
 
     removeItem() {
-        this.props.handleRemoveItem(this.state.itemObj);
+        this.props.handleRemoveItem(this.state);
     }
 
     render() {
         return (
-            <div className='card'>
+            <div className={`card ${this.state.completed ? "completed" : ""}`}>
                 <div className='card-body'>
+                    <div className='checkbox-container'><input type='checkbox' className='add-item' onChange={this.toggleChecked} checked={this.state.completed} /></div>
                     <label>
-                        <div className='checkbox-container'><input type='checkbox' className='add-item' /></div>
-                        <div className='task-container'>{this.state.itemObj.task}</div>
-                        <div className="edit-item" onClick={this.removeItem}>
-                            <div className="edit-item-dot"></div>
-                            <div className="edit-item-dot"></div>
-                            <div className="edit-item-dot"></div>
-                        </div>
+                        <div className='task-container'>{this.state.description}</div>
                     </label>
+                    <div className="edit-item" onClick={this.removeItem}>
+                        <div className="edit-item-dot"></div>
+                        <div className="edit-item-dot"></div>
+                        <div className="edit-item-dot"></div>
+                    </div>
                 </div>
             </div>
 
@@ -45,8 +48,10 @@ class AddListItem extends React.Component {
         }
         if ((e.target.tagName === "INPUT" && e.keyCode === 13) || (e.target.tagName === "BUTTON")) {
             var newItem = {
-                task: this.input.value,
-                id: Date.now()
+                description: this.input.value,
+                id: Date.now(),
+                completed: false,
+                starred: false
             }
             this.props.handleAdd(newItem);
             this.input.value = "";
@@ -71,9 +76,12 @@ class List extends React.Component {
         super(props);
         this.addItemToList = this.addItemToList.bind(this);
         this.removeItemFromList = this.removeItemFromList.bind(this);
+        this.toggleCompleted = this.toggleCompleted.bind(this);
+        this.renderCompletedItems = this.renderCompletedItems.bind(this);
         this.state = {
             listTitle: this.props.listObj.listTitle,
-            listItems: this.props.listObj.listItems
+            listItems: this.props.listObj.listItems,
+            completedItems: this.props.listObj.completedItems
         }
     }
 
@@ -83,16 +91,48 @@ class List extends React.Component {
         allItems.push(item);
         this.setState({
             listItems: allItems
-        }, () => { this.props.updateList(this.state) })
+            // }, () => { this.props.updateList(this.state) })
+        })
     }
 
     removeItemFromList(item) {
-        var allItemsAsString = JSON.stringify(this.state.listItems);
-        var allItems = JSON.parse(allItemsAsString);
-        var allItemsExceptRemovedOne = allItems.filter((task) => task.id !== item.id);
+        if (item.completed) {
+            var copyOfCompletedItems = JSON.parse(JSON.stringify(this.state.completedItems));
+            copyOfCompletedItems = copyOfCompletedItems.filter((task) => task.id !== item.id);
+            this.setState({
+                completedItems: copyOfCompletedItems
+            })
+        } else {
+            var copyOfListItems = JSON.parse(JSON.stringify(this.state.listItems));
+            copyOfListItems = copyOfListItems.filter((task) => task.id !== item.id);
+            this.setState({
+                listItems: copyOfListItems
+            })
+        }
+    }
+
+    toggleCompleted(item) {
+        var copyOfListItems = JSON.parse(JSON.stringify(this.state.listItems));
+        var copyOfCompletedItems = JSON.parse(JSON.stringify(this.state.completedItems));
+        if (item.completed) {
+            copyOfCompletedItems.push(item);
+            copyOfListItems = copyOfListItems.filter(task => task.id !== item.id);
+        } else {
+            copyOfListItems.push(item);
+            copyOfCompletedItems = copyOfCompletedItems.filter(task => task.id !== item.id);
+        }
         this.setState({
-            listItems: allItemsExceptRemovedOne
-        }, () => { this.props.updateList(this.state) })
+            listItems: copyOfListItems,
+            completedItems: copyOfCompletedItems
+        })
+    }
+
+    renderListItems() {
+        return this.state.listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} />);
+    }
+
+    renderCompletedItems() {
+        return this.state.completedItems.length === 0 ? <div className='no-items-completed-message'>No items completed yet!</div> : this.state.completedItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} />);
     }
 
     render() {
@@ -102,7 +142,12 @@ class List extends React.Component {
                     <h3 className='list-title'>{this.state.listTitle}</h3>
                     <AddListItem handleAdd={this.addItemToList} />
                     <div className='list-items'>
-                        {this.state.listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} />)}
+                        {this.renderListItems()}
+                    </div>
+                    <br />
+                    <h3 className='list-title'>Done</h3>
+                    <div className='completed-list-items list-items'>
+                        {this.renderCompletedItems()}
                     </div>
                 </div>
             ) : false
@@ -131,7 +176,7 @@ class SideMenu extends React.Component {
             <div className='side-menu normal blue'>
                 <ul className='all-list-titles'>
                     {this.renderListTitles()}
-                    <li><div className='new-list-circle'>+</div></li>
+                    <li>+</li>
                 </ul>
             </div>
         )
@@ -157,11 +202,8 @@ class App extends React.Component {
             allLists: [
                 {
                     listTitle: "To Do",
-                    listItems: []
-                },
-                {
-                    listTitle: "Completed",
-                    listItems: []
+                    listItems: [],
+                    completedItems: []
                 }
             ]
         }
