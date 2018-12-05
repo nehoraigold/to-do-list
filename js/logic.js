@@ -31,7 +31,6 @@ class ListItem extends React.Component {
                     </div>
                 </div>
             </div>
-
         )
     }
 }
@@ -79,9 +78,9 @@ class List extends React.Component {
         this.toggleCompleted = this.toggleCompleted.bind(this);
         this.renderCompletedItems = this.renderCompletedItems.bind(this);
         this.state = {
-            listTitle: this.props.listObj.listTitle,
-            listItems: this.props.listObj.listItems,
-            completedItems: this.props.listObj.completedItems
+            listTitle: this.props.listTitle,
+            listItems: [],
+            completedItems: [],
         }
     }
 
@@ -91,7 +90,6 @@ class List extends React.Component {
         allItems.push(item);
         this.setState({
             listItems: allItems
-            // }, () => { this.props.updateList(this.state) })
         })
     }
 
@@ -160,6 +158,15 @@ class SideMenu extends React.Component {
         super(props);
         this.renderListTitles = this.renderListTitles.bind(this);
         this.changeSelectedList = this.changeSelectedList.bind(this);
+        this.createNewList = this.createNewList.bind(this);
+    }
+
+    createNewList() {
+        var newListName = prompt("Please enter a list name");
+        if (newListName === "" || newListName === null) {
+            return false;
+        }
+        this.props.handleCreateNewList(newListName);
     }
 
     changeSelectedList(e) {
@@ -168,7 +175,7 @@ class SideMenu extends React.Component {
     }
 
     renderListTitles() {
-        return this.props.allLists.map((listObj, index) => <li className={`${this.props.currentList === index ? "current-list-title" : ""}`} key={index} data-number={index} onClick={this.changeSelectedList}>{listObj.listTitle}</li>)
+        return this.props.allLists.map((listTitle, index) => <li className={`${this.props.currentList === index ? "current-list-title" : ""}`} key={index} data-number={index} onClick={this.changeSelectedList}>{listTitle}</li>)
     }
 
     render() {
@@ -176,7 +183,7 @@ class SideMenu extends React.Component {
             <div className='side-menu normal blue'>
                 <ul className='all-list-titles'>
                     {this.renderListTitles()}
-                    <li>+</li>
+                    <li onClick={this.createNewList}>+</li>
                 </ul>
             </div>
         )
@@ -195,30 +202,21 @@ class App extends React.Component {
     constructor() {
         super();
         this.renderLists = this.renderLists.bind(this);
-        this.updateList = this.updateList.bind(this);
         this.changeList = this.changeList.bind(this);
+        this.createNewList = this.createNewList.bind(this);
         this.state = {
             selectedListIndex: 0,
-            allLists: [
-                {
-                    listTitle: "To Do",
-                    listItems: [],
-                    completedItems: []
-                }
-            ]
+            allLists: ["To Do", "For Later"]
         }
     }
 
-    updateList(listObject) {
+    createNewList(newListName) {
         var allListsAsString = JSON.stringify(this.state.allLists);
-        var allLists = JSON.parse(allListsAsString);
-        for (var i = 0; i < allLists.length; i++) {
-            if (allLists[i].listTitle === listObject.listTitle) {
-                allLists[i] = listObject
-            }
-        }
+        var copyOfAllLists = JSON.parse(allListsAsString);
+        copyOfAllLists.push(newListName);
         this.setState({
-            allLists: allLists
+            selectedListIndex: copyOfAllLists.length - 1,
+            allLists: copyOfAllLists
         })
     }
 
@@ -229,14 +227,14 @@ class App extends React.Component {
     }
 
     renderLists() {
-        return this.state.allLists.map((list, index) => <List key={index} listObj={list} updateList={this.updateList} visible={this.state.selectedListIndex === index ? true : false} />)
+        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} visible={this.state.selectedListIndex === index ? true : false} />)
     }
 
     render() {
         return (
             <div>
                 <TopMenu />
-                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} />
+                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} handleCreateNewList={this.createNewList}/>
                 <div className='current-list light blue'>
                     {this.renderLists()}
                 </div>

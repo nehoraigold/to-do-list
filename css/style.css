@@ -5,6 +5,9 @@ body {
     background-size:cover;
     background-position: center;
     background-repeat: no-repeat;
+    /* font-family: 'Titillium Web', sans-serif; */
+    font-family: 'Comfortaa', cursive;
+    /* font-family: 'Maven Pro', sans-serif; */
 }
 
 .top-menu {
