@@ -47,6 +47,7 @@ class ListItem extends React.Component {
     constructor(props) {
         super(props);
         this.toggleChecked = this.toggleChecked.bind(this);
+        this.toggleStar = this.toggleStar.bind(this);
         this.removeItem = this.removeItem.bind(this);
         this.state = this.props.itemObj;
     }
@@ -55,6 +56,12 @@ class ListItem extends React.Component {
         this.setState({
             completed: !this.state.completed
         }, () => { this.props.handleComplete(this.state) })
+    }
+
+    toggleStar() {
+        this.setState({
+            starred: !this.state.starred
+        })
     }
 
     removeItem() {
@@ -74,6 +81,9 @@ class ListItem extends React.Component {
                     <label htmlFor={`item-${this.state.id}`}>
                         <div className='task-container'>{this.state.description}</div>
                     </label>
+                    <div className='star-item' onClick={this.toggleStar}>
+                        <span className={`star ${this.state.starred ? 'fas fa-star starred' : 'far fa-star'}`}></span>
+                    </div>
                     <div className="edit-item" onClick={this.removeItem}>
                         <div className="edit-item-dot"></div>
                         <div className="edit-item-dot"></div>
@@ -159,7 +169,7 @@ class List extends React.Component {
             copyOfCompletedItems = copyOfCompletedItems.filter((task) => task.id !== item.id);
             this.setState({
                 completedItems: copyOfCompletedItems
-            })
+            }, () => {ListLogic.updateList(this.state)});
         } else {
             var copyOfListItems = JSON.parse(JSON.stringify(this.state.listItems));
             copyOfListItems = copyOfListItems.filter((task) => task.id !== item.id);
