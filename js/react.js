@@ -127,8 +127,7 @@ class List extends React.Component {
         this.removeItemFromList = this.removeItemFromList.bind(this);
         this.toggleCompleted = this.toggleCompleted.bind(this);
         this.renderCompletedItems = this.renderCompletedItems.bind(this);
-        console.log(this.props.listID);
-        console.log(ListLogic.returnListObjectGivenID(parseInt(this.props.listID)))
+        this.deleteList = this.deleteList.bind(this);
         this.state = ListLogic.returnListObjectGivenID(parseInt(this.props.listID));
     }
 
@@ -173,6 +172,10 @@ class List extends React.Component {
         }, () => {ListLogic.updateList(this.state)});
     }
 
+    deleteList() {
+        this.props.handleDelete(this.state.listID);
+    }
+
     renderListItems() {
         return this.state.listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} />);
     }
@@ -185,7 +188,7 @@ class List extends React.Component {
         return (
             this.props.visible ? (
                 <div className='list'>
-                    <h3 className='list-title'>{this.state.listTitle}<span className="fas fa-trash-alt trash-can"></span></h3>
+                    <h3 className='list-title'>{this.state.listTitle}<span onClick={this.deleteList} className="fas fa-trash-alt trash-can"></span></h3>
                     <AddListItem handleAdd={this.addItemToList} />
                     <div className='list-items'>
                         {this.renderListItems()}
@@ -252,9 +255,10 @@ class App extends React.Component {
         this.renderLists = this.renderLists.bind(this);
         this.changeList = this.changeList.bind(this);
         this.createNewList = this.createNewList.bind(this);
+        this.deleteList = this.deleteList.bind(this);
         this.state = {
             selectedListIndex: 0,
-            allLists: ListLogic.returnArrayOfListTitles()
+            allLists: ListLogic.returnArrayOfListTitles(),
         }
     }
 
@@ -263,7 +267,7 @@ class App extends React.Component {
         var arrayOfTitles = ListLogic.returnArrayOfListTitles();
         this.setState({
             selectedListIndex: arrayOfTitles.length - 1,
-            allLists: arrayOfTitles
+            allLists: arrayOfTitles,
         })
     }
 
@@ -273,8 +277,20 @@ class App extends React.Component {
         })
     }
 
+    deleteList(listID) {
+        var currentListIndex = ListLogic.returnArrayOfListIDs().indexOf(listID);
+        var nextListIndex = currentListIndex > 0 ? currentListIndex - 1 : 0;
+        ListLogic.deleteList(listID);
+        var arrayOfTitles = ListLogic.returnArrayOfListTitles();
+        this.setState({
+            selectedListIndex: nextListIndex,
+            allLists: arrayOfTitles
+        })
+    }
+
     renderLists() {
-        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={index} visible={this.state.selectedListIndex === index ? true : false} />)
+        var arrayOfIDs = ListLogic.returnArrayOfListIDs();
+        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList}/>)
     }
 
     render() {

@@ -34,8 +34,10 @@ ListLogic.createNewList = function(newListName) {
     ListLogic.saveAllLists();
 }
 
-ListLogic.deleteList = function() {
-    
+ListLogic.deleteList = function(listID) {
+    var allListsMinusOne = ListLogic.allLists.filter(listObject => listObject.listID !== listID);
+    ListLogic.allLists = allListsMinusOne;
+    ListLogic.saveAllLists()
 }
 
 ListLogic.returnListObjectGivenID = function(givenListID) {
@@ -50,6 +52,10 @@ ListLogic.returnListObjectGivenID = function(givenListID) {
 
 ListLogic.returnArrayOfListTitles = function() {
     return ListLogic.allLists.map(listObject => listObject.listTitle);
+}
+
+ListLogic.returnArrayOfListIDs = function() {
+    return ListLogic.allLists.map(listObject => listObject.listID);
 }
 
 ListLogic.saveAllLists = function() {
