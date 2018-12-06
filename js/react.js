@@ -296,7 +296,7 @@ class SideMenu extends React.Component {
 class TopMenu extends React.Component {
     render() {
         return (
-            <div className='top-menu dark blue'></div>
+            <div className='top-menu dark blue'><span className='header'><span className='logo'><span className="fas fa-clipboard-check"></span> Listocracy</span></span></div>
         )
     }
 }

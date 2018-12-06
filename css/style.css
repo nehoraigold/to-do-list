@@ -38,6 +38,19 @@ body {
     height:40px;
 }
 
+.top-menu .header {
+    display:inline-block;
+    margin:0;
+    padding:12px;
+    font-size:12px;
+    color:rgb(221,221,221);
+}
+
+.top-menu .logo {
+    font-weight:900;
+    text-transform:uppercase;
+}
+
 .side-menu {
     display:inline-block;
     width:15%;
@@ -52,7 +65,7 @@ body {
 .all-list-titles li {
     margin:5px;
     padding:20px 1vw;
-    font-size:2vw;
+    font-size:1.7vw;
     color:white;
     border-radius:10px;
     cursor: pointer;
