@@ -20,8 +20,13 @@ class ListItem extends React.Component {
         return (
             <div className={`card ${this.state.completed ? "completed" : ""}`}>
                 <div className='card-body'>
-                    <div className='checkbox-container'><input type='checkbox' className='add-item' onChange={this.toggleChecked} checked={this.state.completed} /></div>
-                    <label>
+                    <label htmlFor={`item-${this.state.id}`}>
+                        <div className='checkbox-container'>
+                            <div className={`fas fa-check checkmark ${this.state.completed ? "" : "unchecked"}`}></div>
+                            <input type='checkbox' className='input-checkbox' onChange={this.toggleChecked} checked={this.state.completed} id={`item-${this.state.id}`} />
+                        </div>
+                    </label>
+                    <label htmlFor={`item-${this.state.id}`}>
                         <div className='task-container'>{this.state.description}</div>
                     </label>
                     <div className="edit-item" onClick={this.removeItem}>
@@ -234,7 +239,7 @@ class App extends React.Component {
         return (
             <div>
                 <TopMenu />
-                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} handleCreateNewList={this.createNewList}/>
+                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} handleCreateNewList={this.createNewList} />
                 <div className='current-list light blue'>
                     {this.renderLists()}
                 </div>
