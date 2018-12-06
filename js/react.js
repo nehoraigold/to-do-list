@@ -23,7 +23,7 @@ class EditListItem extends React.Component {
                                     Due Date:
                                 </td>
                                 <td>
-                                    <input type='date' className='edit-task-input'/>
+                                    <input type='date' className='edit-task-input' />
                                 </td>
                             </tr>
                             <tr>
@@ -31,7 +31,7 @@ class EditListItem extends React.Component {
                                     Notes:
                                 </td>
                                 <td>
-                                    <textarea className='edit-task-input' rows="5"/>
+                                    <textarea className='edit-task-input' rows="5" />
                                 </td>
 
                             </tr>
@@ -61,7 +61,7 @@ class ListItem extends React.Component {
     toggleStar() {
         this.setState({
             starred: !this.state.starred
-        })
+        }, () => { this.props.handleUpdateItem(this.state) })
     }
 
     removeItem() {
@@ -137,6 +137,7 @@ class List extends React.Component {
         this.addItemToList = this.addItemToList.bind(this);
         this.removeItemFromList = this.removeItemFromList.bind(this);
         this.toggleCompleted = this.toggleCompleted.bind(this);
+        this.updateItem = this.updateItem.bind(this);
         this.renderCompletedItems = this.renderCompletedItems.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.state = ListLogic.returnListObjectGivenID(parseInt(this.props.listID));
@@ -160,7 +161,7 @@ class List extends React.Component {
         allItems.push(item);
         this.setState({
             listItems: allItems
-        }, () => {ListLogic.updateList(this.state)})
+        }, () => { ListLogic.updateList(this.state) })
     }
 
     removeItemFromList(item) {
@@ -169,13 +170,13 @@ class List extends React.Component {
             copyOfCompletedItems = copyOfCompletedItems.filter((task) => task.id !== item.id);
             this.setState({
                 completedItems: copyOfCompletedItems
-            }, () => {ListLogic.updateList(this.state)});
+            }, () => { ListLogic.updateList(this.state) });
         } else {
             var copyOfListItems = JSON.parse(JSON.stringify(this.state.listItems));
             copyOfListItems = copyOfListItems.filter((task) => task.id !== item.id);
             this.setState({
                 listItems: copyOfListItems
-            }, () => {ListLogic.updateList(this.state)});
+            }, () => { ListLogic.updateList(this.state) });
         }
     }
 
@@ -192,19 +193,47 @@ class List extends React.Component {
         this.setState({
             listItems: copyOfListItems,
             completedItems: copyOfCompletedItems
-        }, () => {ListLogic.updateList(this.state)});
+        }, () => { ListLogic.updateList(this.state) });
+    }
+
+    updateItem(item) {
+        var copyOfCompletedItems = JSON.parse(JSON.stringify(this.state.completedItems));
+        var copyOfListItems = JSON.parse(JSON.stringify(this.state.listItems));
+        if (item.completed) {
+            for (var i = 0; i < copyOfCompletedItems.length; i++) {
+                if (copyOfCompletedItems[i].id === item.id) {
+                    copyOfCompletedItems[i] = item;
+                    break;
+                }
+            }
+        } else {
+            for (var i = 0; i < copyOfListItems.length; i++) {
+                if (copyOfListItems[i].id === item.id) {
+                    copyOfListItems[i] = item;
+                    break;
+                }
+            }
+        }
+        this.setState({
+            listItems: copyOfListItems,
+            completedItems: copyOfCompletedItems
+        }, () => { ListLogic.updateList(this.state) })
     }
 
     deleteList() {
         this.props.handleDelete(this.state.listID);
     }
 
-    renderListItems() {
-        return this.state.listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} />);
+    renderListItems(listItems) {
+        return listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} handleUpdateItem={this.updateItem}/>);
+    }
+
+    renderNoCompletedItemsMessage() {
+        return <div className='no-items-completed-message'>No items completed yet!</div>;
     }
 
     renderCompletedItems() {
-        return this.state.completedItems.length === 0 ? <div className='no-items-completed-message'>No items completed yet!</div> : this.state.completedItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} />);
+        return this.state.completedItems.length === 0 ? this.renderNoCompletedItemsMessage() : this.renderListItems(ListLogic.orderListItemsByStarred(this.state.completedItems));
     }
 
     render() {
@@ -214,7 +243,7 @@ class List extends React.Component {
                     <h3 className='list-title'>{this.state.listTitle}<span onClick={this.deleteList} className="fas fa-trash-alt trash-can"></span></h3>
                     <AddListItem handleAdd={this.addItemToList} />
                     <div className='list-items'>
-                        {this.renderListItems()}
+                        {this.renderListItems(ListLogic.orderListItemsByStarred(this.state.listItems))}
                     </div>
                     <br />
                     <h3 className='list-title'>Done</h3>
@@ -313,7 +342,7 @@ class App extends React.Component {
 
     renderLists() {
         var arrayOfIDs = ListLogic.returnArrayOfListIDs();
-        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList}/>)
+        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList} />)
     }
 
     render() {

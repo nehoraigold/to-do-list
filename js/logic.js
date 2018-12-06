@@ -58,6 +58,13 @@ ListLogic.returnArrayOfListIDs = function() {
     return ListLogic.allLists.map(listObject => listObject.listID);
 }
 
+ListLogic.orderListItemsByStarred = function(listItems) {
+    var starred = listItems.filter(item => item.starred === true);
+    var unstarred = listItems.filter(item => item.starred === false);
+    return starred.concat(unstarred);
+
+}
+
 ListLogic.saveAllLists = function() {
     var ToDoLists = {
         listIDGenerator: ListLogic.listIDGenerator,
