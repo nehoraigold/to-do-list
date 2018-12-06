@@ -225,7 +225,7 @@ class List extends React.Component {
     }
 
     renderListItems(listItems) {
-        return listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} handleUpdateItem={this.updateItem}/>);
+        return listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} handleUpdateItem={this.updateItem} />);
     }
 
     renderNoCompletedItemsMessage() {
@@ -240,7 +240,7 @@ class List extends React.Component {
         return (
             this.props.visible ? (
                 <div className='list'>
-                    <h3 className='list-title'>{this.state.listTitle}<span onClick={this.deleteList} className="fas fa-trash-alt trash-can"></span></h3>
+                    <h3 className='list-title'>{this.state.listTitle}<span onClick={this.deleteList} className="fas fa-trash-alt list-title-icon trash-can"></span></h3>
                     <AddListItem handleAdd={this.addItemToList} />
                     <div className='list-items'>
                         {this.renderListItems(ListLogic.orderListItemsByStarred(this.state.listItems))}
@@ -256,20 +256,62 @@ class List extends React.Component {
     }
 }
 
+class ProtoList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.confirmNewList = this.confirmNewList.bind(this);
+        this.cancelNewList = this.cancelNewList.bind(this);
+    }
+
+    confirmNewList(e) {
+        if (this.input.value.trim() === "") {
+            return false;
+        }
+        if ((e.target.tagName === "INPUT" && e.keyCode === 13) || (e.target.tagName === "SPAN")) {
+            var newListName = this.input.value;
+            this.props.createList(newListName);
+        }
+    }
+
+    cancelNewList(e) {
+        this.props.cancelList()
+    }
+
+    render() {
+        return (
+            <div className='list'>
+                <h3 className='list-title'>
+                    <input type='text' className='list-title' placeholder="New List Title" onKeyUp={this.confirmNewList} ref={(input) => {this.input = input}}/>
+                    <span onClick={this.cancelNewList} className="fas fa-times-circle list-title-icon proto-list-option"></span>
+                    <span onClick={this.confirmNewList} className='fas fa-check-circle list-title-icon proto-list-option'></span>
+                </h3>
+                <AddListItem handleAdd={(e) => {false}}/>
+            </div>
+        )
+    }
+}
+
 class SideMenu extends React.Component {
     constructor(props) {
         super(props);
         this.renderListTitles = this.renderListTitles.bind(this);
         this.changeSelectedList = this.changeSelectedList.bind(this);
         this.createNewList = this.createNewList.bind(this);
+        this.state = {
+            isCreatingNewList: this.props.isCreatingNewList
+        }
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.isCreatingNewList !== this.state.isCreatingNewList) {
+            this.setState({
+                isCreatingNewList: newProps.isCreatingNewList
+            })
+        }
     }
 
     createNewList() {
-        var newListName = prompt("Please enter a list name");
-        if (newListName === "" || newListName === null) {
-            return false;
-        }
-        this.props.handleCreateNewList(newListName);
+        this.props.inCreateNewListMode()
     }
 
     changeSelectedList(e) {
@@ -278,7 +320,7 @@ class SideMenu extends React.Component {
     }
 
     renderListTitles() {
-        return this.props.allLists.map((listTitle, index) => <li className={`${this.props.currentList === index ? "current-list-title" : ""}`} key={index} data-number={index} onClick={this.changeSelectedList}>{listTitle}</li>)
+        return this.props.allLists.map((listTitle, index) => <li className={`${this.state.isCreatingNewList ? "" : (this.props.currentList === index ? "current-list-title" : "")}`} key={index} data-number={index} onClick={this.changeSelectedList}>{listTitle}</li>)
     }
 
     render() {
@@ -286,7 +328,7 @@ class SideMenu extends React.Component {
             <div className='side-menu normal blue'>
                 <ul className='all-list-titles'>
                     {this.renderListTitles()}
-                    <li onClick={this.createNewList}>+</li>
+                    <li onClick={this.createNewList} className={`${this.state.isCreatingNewList ? "current-list-title" : ""}`}>+</li>
                 </ul>
             </div>
         )
@@ -305,13 +347,22 @@ class App extends React.Component {
     constructor() {
         super();
         this.renderLists = this.renderLists.bind(this);
+        this.showProperComponent = this.showProperComponent.bind(this);
         this.changeList = this.changeList.bind(this);
         this.createNewList = this.createNewList.bind(this);
+        this.toggleCreateNewListMode = this.toggleCreateNewListMode.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.state = {
             selectedListIndex: 0,
             allLists: ListLogic.returnArrayOfListTitles(),
+            isCreatingNewList: false
         }
+    }
+
+    toggleCreateNewListMode() {
+        this.setState({
+            isCreatingNewList: !this.state.isCreatingNewList
+        })
     }
 
     createNewList(newListName) {
@@ -320,12 +371,14 @@ class App extends React.Component {
         this.setState({
             selectedListIndex: arrayOfTitles.length - 1,
             allLists: arrayOfTitles,
+            isCreatingNewList: false
         })
     }
 
     changeList(newListIndex) {
         this.setState({
-            selectedListIndex: newListIndex
+            selectedListIndex: newListIndex,
+            isCreatingNewList: false
         })
     }
 
@@ -345,14 +398,18 @@ class App extends React.Component {
         return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList} />)
     }
 
+    showProperComponent() {
+        return this.state.isCreatingNewList ? <ProtoList createList={this.createNewList} cancelList={this.toggleCreateNewListMode}/> : this.renderLists();
+    }
+
     render() {
         return (
             <div>
                 <TopMenu />
-                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} handleCreateNewList={this.createNewList} />
+                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} inCreateNewListMode={this.toggleCreateNewListMode} isCreatingNewList={this.state.isCreatingNewList}/>
                 <div className='current-list light blue'>
-                    {this.renderLists()}
-                    <EditListItem />
+                    {this.showProperComponent()}
+                    {/* {this.renderLists()} */}
                 </div>
 
             </div>

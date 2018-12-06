@@ -109,14 +109,40 @@ body {
     display:inline-block;
 }
 
-.list-title {
+h3.list-title {
     padding:5px 10px;
+}
+
+.list-title {
     color:white;
     font-size:40px;
     text-shadow: 3px 3px 3px rgb(0, 70, 155);
+    background:transparent;
+    border:0;
+    outline:none;
 }
 
-.list-title .trash-can {
+.list-title::placeholder {
+    color:rgb(221,221,221);
+    font-style:italic;
+}
+
+.list-title::-webkit-input-placeholder {
+    color:rgb(221,221,221);
+    font-style:italic;
+}
+
+.list-title:-moz-placeholder {
+    color:rgb(221,221,221);
+    font-style:italic;
+}
+
+.list-title::-moz-placeholder {
+    color:rgb(221,221,221);
+    font-style:italic;
+}
+
+.list-title .list-title-icon {
     float:right;
     opacity:0;
     position:relative;
@@ -125,7 +151,7 @@ body {
     transition: all .5s ease;
 }
 
-.list-title:hover .trash-can {
+.list-title:hover .list-title-icon {
     opacity:1;
     right:0px;
     cursor: pointer;
@@ -133,6 +159,14 @@ body {
 
 .list-title .trash-can:hover {
     color:rgb(221,221,221);
+}
+
+.proto-list-option {
+    color:rgb(221,221,221);
+}
+
+.proto-list-option:hover {
+    color:white;
 }
 
 .list .card {
