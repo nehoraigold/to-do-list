@@ -123,12 +123,25 @@ class AddListItem extends React.Component {
 class List extends React.Component {
     constructor(props) {
         super(props);
+        this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
         this.addItemToList = this.addItemToList.bind(this);
         this.removeItemFromList = this.removeItemFromList.bind(this);
         this.toggleCompleted = this.toggleCompleted.bind(this);
         this.renderCompletedItems = this.renderCompletedItems.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.state = ListLogic.returnListObjectGivenID(parseInt(this.props.listID));
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (this.state.listID !== newProps.listID) {
+            var listObject = ListLogic.allLists.filter(listObj => listObj.listID === newProps.listID)[0];
+            this.setState({
+                listTitle: listObject.listTitle,
+                listID: listObject.listID,
+                listItems: listObject.listItems,
+                completedItems: listObject.completedItems
+            })
+        }
     }
 
     addItemToList(item) {
