@@ -7,7 +7,7 @@ ListLogic.updateList = function(updatedList) {
         var currentList = ListLogic.allLists[i];
         if (currentList.listID === updatedList.listID) {
             ListLogic.allLists[i] = updatedList;
-            ListLogic.saveAllLists();
+            ListLogic.saveAll();
             return true;
         }
     }
@@ -15,6 +15,7 @@ ListLogic.updateList = function(updatedList) {
 }
 
 ListLogic.listIDGenerator = 1;
+ListLogic.chosenTheme = "blue";
 
 ListLogic.emptyList = {
     listTitle: "To Do",
@@ -31,13 +32,13 @@ ListLogic.createNewList = function(newListName) {
         completedItems: []
     });
     ListLogic.listIDGenerator++;
-    ListLogic.saveAllLists();
+    ListLogic.saveAll();
 }
 
 ListLogic.deleteList = function(listID) {
     var allListsMinusOne = ListLogic.allLists.filter(listObject => listObject.listID !== listID);
     ListLogic.allLists = allListsMinusOne;
-    ListLogic.saveAllLists()
+    ListLogic.saveAll()
 }
 
 ListLogic.returnListObjectGivenID = function(givenListID) {
@@ -65,23 +66,35 @@ ListLogic.orderListItemsByStarred = function(listItems) {
 
 }
 
-ListLogic.saveAllLists = function() {
+ListLogic.updateChosenTheme = function(newTheme) {
+    ListLogic.chosenTheme = newTheme;
+    ListLogic.saveAll();
+}
+
+ListLogic.loadTheme = function() {
+    document.getElementById('theme').setAttribute('href',`./css/themes/${ListLogic.chosenTheme}.css`);
+}
+
+ListLogic.saveAll = function() {
     var ToDoLists = {
+        chosenTheme: ListLogic.chosenTheme,
         listIDGenerator: ListLogic.listIDGenerator,
         allLists: ListLogic.allLists
     }
     window.localStorage.ToDoLists = JSON.stringify(ToDoLists);
 }
 
-ListLogic.loadAllLists = function() {
+ListLogic.loadAll = function() {
     var ToDoLists = JSON.parse(window.localStorage.ToDoLists);
     ListLogic.listIDGenerator = ToDoLists.listIDGenerator;
     ListLogic.allLists = ToDoLists.allLists;
+    ListLogic.chosenTheme = ToDoLists.chosenTheme;
+    ListLogic.loadTheme();
 }
 
 ListLogic.initLists = function() {
     if (window.localStorage.ToDoLists !== undefined) {
-        ListLogic.loadAllLists();
+        ListLogic.loadAll();
     } else {
         ListLogic.allLists = [ListLogic.emptyList];
     }

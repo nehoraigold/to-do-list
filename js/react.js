@@ -281,11 +281,11 @@ class ProtoList extends React.Component {
         return (
             <div className='list'>
                 <h3 className='list-title'>
-                    <input type='text' className='list-title' placeholder="New List Title" onKeyUp={this.confirmNewList} ref={(input) => {this.input = input}}/>
+                    <input type='text' className='list-title' placeholder="New List Title" onKeyUp={this.confirmNewList} ref={(input) => { this.input = input }} />
                     <span onClick={this.cancelNewList} className="fas fa-times-circle list-title-icon proto-list-option"></span>
                     <span onClick={this.confirmNewList} className='fas fa-check-circle list-title-icon proto-list-option'></span>
                 </h3>
-                <AddListItem handleAdd={(e) => {false}}/>
+                <div className='alert alert-danger' role='alert'>Please title your list before adding new items.</div>
             </div>
         )
     }
@@ -336,9 +336,31 @@ class SideMenu extends React.Component {
 }
 
 class TopMenu extends React.Component {
+    constructor(props) {
+        super(props);
+        this.changeTheme = this.changeTheme.bind(this);
+    }
+
+    changeTheme(e) {
+        var newTheme = e.target.classList[1];
+        ListLogic.updateChosenTheme(newTheme);
+        ListLogic.loadTheme();
+    }
+
     render() {
         return (
-            <div className='top-menu dark blue'><span className='header'><span className='logo'><span className="fas fa-clipboard-check"></span> Listocracy</span></span></div>
+            <div className='top-menu dark blue'>
+                <span className='header'><span className='logo'>
+                    <span className="fas fa-clipboard-check"></span> Listocracy</span>
+                </span>
+                <div className='themes'>
+                    <span className='themes-label'>Themes</span>
+                    <div className='theme-boxes'>
+                        <div onClick={this.changeTheme} className='theme-box blue'></div>
+                        <div onClick={this.changeTheme} className='theme-box green'></div>
+                    </div>
+                </div>
+            </div>
         )
     }
 }
@@ -399,14 +421,14 @@ class App extends React.Component {
     }
 
     showProperComponent() {
-        return this.state.isCreatingNewList ? <ProtoList createList={this.createNewList} cancelList={this.toggleCreateNewListMode}/> : this.renderLists();
+        return this.state.isCreatingNewList ? <ProtoList createList={this.createNewList} cancelList={this.toggleCreateNewListMode} /> : this.renderLists();
     }
 
     render() {
         return (
             <div>
                 <TopMenu />
-                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} inCreateNewListMode={this.toggleCreateNewListMode} isCreatingNewList={this.state.isCreatingNewList}/>
+                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} inCreateNewListMode={this.toggleCreateNewListMode} isCreatingNewList={this.state.isCreatingNewList} />
                 <div className='current-list light blue'>
                     {this.showProperComponent()}
                     {/* {this.renderLists()} */}

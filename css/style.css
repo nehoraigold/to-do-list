@@ -5,7 +5,6 @@ html {
 body {
     height:100%;
     width:100%;
-    background-image:url(../images/water.jpg);
     background-size:cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -21,12 +20,10 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px rgb(0, 159, 232); 
     border-radius: 10px;
 }
  
 ::-webkit-scrollbar-thumb {
-    background: rgba(0, 70, 155);
     border-radius: 10px;
 }
 
@@ -43,7 +40,6 @@ body {
     margin:0;
     padding:12px;
     font-size:12px;
-    color:rgb(221,221,221);
 }
 
 .top-menu .logo {
@@ -66,32 +62,15 @@ body {
     margin:5px;
     padding:20px 1vw;
     font-size:1.7vw;
-    color:white;
+    /* color:white; */
     border-radius:10px;
     cursor: pointer;
     list-style: none;
     transition: background-color .5s ease;
 }
 
-.all-list-titles li:hover {
-    background-color: rgba(0, 122, 197, 0.7)
-}
-
 .current-list-title {
-    background-color:rgba(0, 70, 155, 0.9);
     pointer-events: none;
-}
-
-.dark.blue {
-    background-color:rgba(0, 70, 155, 0.9);
-}
-
-.normal.blue {
-    background-color: rgba(0, 122, 197, 0.7);
-}
-
-.light.blue {
-    background-color:rgba(0, 159, 232, 0.3);
 }
 
 .current-list {
@@ -116,29 +95,24 @@ h3.list-title {
 .list-title {
     color:white;
     font-size:40px;
-    text-shadow: 3px 3px 3px rgb(0, 70, 155);
     background:transparent;
     border:0;
     outline:none;
 }
 
 .list-title::placeholder {
-    color:rgb(221,221,221);
     font-style:italic;
 }
 
 .list-title::-webkit-input-placeholder {
-    color:rgb(221,221,221);
     font-style:italic;
 }
 
 .list-title:-moz-placeholder {
-    color:rgb(221,221,221);
     font-style:italic;
 }
 
 .list-title::-moz-placeholder {
-    color:rgb(221,221,221);
     font-style:italic;
 }
 
@@ -204,6 +178,14 @@ h3.list-title {
     width:80%;
 }
 
+.alert-danger {
+    border-radius:10px;
+    margin-top:10px;
+    padding:20px 15px;
+    width:99%;
+    left:0.5%;
+}
+
 .checkbox-container {
     height:15px;
     width:15px;
@@ -213,7 +195,7 @@ h3.list-title {
 }
 
 .checkbox-container .checkmark {
-    color:rgb(0, 122, 197);
+    /* color:rgb(0, 122, 197); */
     vertical-align:bottom;
 }
 
@@ -268,15 +250,10 @@ h3.list-title {
     transition: all .5s ease;
 }
 
-.list .card .edit-item:hover .edit-item-dot {
-    background-color:rgba(0, 70, 155, 0.9);
-}
-
 .edit-item-dot {
     height:6px;
     width:6px;
     border-radius:50%;
-    background-color: rgba(0, 122, 197, 0.7);
     margin:3px 9px;
     transition: background-color .5s ease;
 }
@@ -289,8 +266,6 @@ h3.list-title {
 .no-items-completed-message {
     margin-left:20px;
     font-style: italic;
-    color:whitesmoke;
-    text-shadow: 1px 1px 1px rgb(0, 70, 155);
 }
 
 .list-item-edit-screen {
@@ -319,4 +294,59 @@ h3.list-title {
     border-radius:10px;
     outline:none;
     border:1px solid rgb(221,221,221);
+}
+
+.themes {
+    padding:10px;
+    color:white;
+    font-size:10px;
+    text-transform: uppercase;
+    float:right;
+    right:15px;
+    position:relative;
+}
+
+.theme-boxes {
+    position:absolute;
+    display:flex;
+    top:8px;
+    opacity:0;
+    transition: all .5s ease;
+}
+
+.theme-box {
+    height:16px;
+    width:16px;
+    border:1px solid black;
+    display:inline-block;
+    vertical-align:middle;
+    margin: 0 5px;
+    box-shadow: 1px 1px 1px black;
+    cursor:pointer;
+}
+
+.themes .themes-label {
+    right:0;
+    transition:all .5s ease-out;
+    position:relative;
+}
+
+.themes:hover .themes-label{
+    right:50px;
+}
+
+.themes:hover .theme-boxes {
+    opacity:1;
+}
+
+.theme-box.selected {
+    border-color:white;
+}
+
+.theme-box.blue {
+    background-color: rgb(0, 159, 232);
+}
+
+.theme-box.green {
+    background-color: rgb(70, 186, 0);
 }
