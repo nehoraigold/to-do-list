@@ -2,6 +2,7 @@ class EditListItem extends React.Component {
     constructor(props) {
         super(props);
         this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
+        this.closeEditItemScreen = this.closeEditItemScreen.bind(this);
         this.state = this.props.listItem;
     }
 
@@ -11,14 +12,18 @@ class EditListItem extends React.Component {
         }
     }
 
+    closeEditItemScreen(e) {
+        e.preventDefault();
+        this.props.handleCloseEditItemScreen();
+    }
+
     render() {
-        console.log(this.props.listItemID);
         return (
             <div className='list-item-edit-container'>
                 <div className='list-item-edit-screen'>
                     <h4>
                         Edit Task
-                        <span onClick={this.cancelNewList} className="fas fa-times-circle edit-task-header-icon"></span>
+                        <span onClick={this.closeEditItemScreen} className="fas fa-times-circle edit-task-header-icon"></span>
                     </h4>
                     <form>
                         <table>
@@ -28,7 +33,7 @@ class EditListItem extends React.Component {
                                         Description:
                                     </td>
                                     <td>
-                                        <textarea type='text' value={this.state.description} className='edit-task-input' rows="3" />
+                                        <textarea type='text' value={this.state.description} className='edit-task-input' rows="3" onChange={this.changeTextField}/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -45,7 +50,7 @@ class EditListItem extends React.Component {
                                 </tr>
                                 <tr>
                                     <td className='form-desc'>
-                                        Starred
+                                        Starred:
                                     </td>
                                     <td>
                                         <div className='star-item' onClick={this.toggleStar}>
@@ -72,8 +77,8 @@ class EditListItem extends React.Component {
                             </tbody>
                         </table>
                         <div className='edit-task-buttons'>
-                            <button className='btn edit-task-btn'>Save</button>
-                            <button className='btn edit-task-btn'>Cancel</button>
+                            <button className='btn edit-task-btn'>Save Changes</button>
+                            <button onClick={this.closeEditItemScreen} className='btn edit-task-btn'>Cancel</button>
                             <button className='btn edit-task-btn btn-danger'>Delete Task</button>
                         </div>
                     </form>
@@ -424,6 +429,8 @@ class App extends React.Component {
         this.createNewList = this.createNewList.bind(this);
         this.toggleCreateNewListMode = this.toggleCreateNewListMode.bind(this);
         this.changeToEditingListItemMode = this.changeToEditingListItemMode.bind(this);
+        this.closeEditItemScreen = this.closeEditItemScreen.bind(this);
+        this.showEditItemScreenIfNeeded = this.showEditItemScreenIfNeeded.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.state = {
             selectedListIndex: 0,
@@ -445,6 +452,12 @@ class App extends React.Component {
         this.setState({
             isEditingListItem: true,
             selectedListItem: item
+        })
+    }
+
+    closeEditItemScreen() {
+        this.setState({
+            isEditingListItem: false
         })
     }
 
@@ -487,6 +500,10 @@ class App extends React.Component {
         return this.state.isCreatingNewList ? <ProtoList createList={this.createNewList} cancelList={this.toggleCreateNewListMode} /> : this.renderLists();
     }
 
+    showEditItemScreenIfNeeded() {
+        return (this.state.isEditingListItem ? <EditListItem listItem={this.state.selectedListItem} handleCloseEditItemScreen={this.closeEditItemScreen}/> : null);
+    }
+
     render() {
         var style = {
             width: this.state.isEditingListItem ? "50%" : "100%"
@@ -499,7 +516,7 @@ class App extends React.Component {
                     <div className='current-list' style={style}>
                         {this.showProperComponent()}
                     </div>
-                    {this.state.isEditingListItem ? <EditListItem listItem={this.state.selectedListItem} /> : null}
+                    {this.showEditItemScreenIfNeeded()}
                 </div>
             </div>
         )
