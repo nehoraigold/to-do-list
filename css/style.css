@@ -27,10 +27,6 @@ body {
     border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: transparent;
-} 
-
 .top-menu {
     height:40px;
 }
@@ -49,9 +45,14 @@ body {
     letter-spacing:2px;
 }
 
+.main-app {
+    display:flex;
+}
+
 .side-menu {
     display:inline-block;
     width:15%;
+    max-width: 200px;
     height:calc(100% - 40px);
 }
 
@@ -63,8 +64,7 @@ body {
 .all-list-titles li {
     margin:5px;
     padding:20px 1vw;
-    font-size:1.7vw;
-    /* color:white; */
+    font-size:1.5vw;
     border-radius:10px;
     cursor: pointer;
     list-style: none;
@@ -76,7 +76,8 @@ body {
 }
 
 .current-list {
-    width:85%;
+    width:50%;
+    min-width:500px;
     height:calc(100% - 40px);
     display:inline-block;
     vertical-align: top;
@@ -194,6 +195,7 @@ h3.list-title {
     border-radius:3px;
     background-color:rgb(221,221,221);
     text-align:center;
+    display:inline-block;
 }
 
 .checkbox-container .checkmark {
@@ -215,19 +217,27 @@ h3.list-title {
     right:20px;
 }
 
-.list .card .star-item {
+.star-item {
     position:absolute;
     right:30px;
     color:goldenrod;
 }
 
-.list .card .star-item .star {
+.list-item-edit-screen .star-item {
+    position:relative;
+    right:0;
+}
+
+.star-item .star {
     cursor:pointer;
     transition: all .5s ease;
+}
+
+.list .card .star {
     opacity:0;
 }
 
-.list .card .star-item .star.starred{
+.star-item .star.starred{
     opacity:1;
 }
 
@@ -271,15 +281,30 @@ h3.list-title {
 }
 
 .list-item-edit-screen {
-    display:none;
-    box-sizing:border-box;
-    vertical-align: top;
-    position:relative;
-    left: 2vw;
-    top: 2vh;
+    margin:2vw;
     background-color:white;
     border-radius:15px;
     padding:20px;
+}
+
+.edit-task-header-icon {
+    float:right;
+    right:0;
+    position:relative;
+    transition: all .5s ease;
+    cursor: pointer;
+}
+
+.edit-task-header-icon:hover {
+    opacity:1;
+    right:0px;
+    cursor: pointer;
+}
+
+.list-item-edit-container {
+    overflow:auto;
+    width:40%;
+    min-width: 420px;
 }
 
 .list-item-edit-screen table {
@@ -296,6 +321,27 @@ h3.list-title {
     border-radius:10px;
     outline:none;
     border:1px solid rgb(221,221,221);
+}
+
+span.incomplete-item, span.completed-item {
+    margin:10px;
+    vertical-align: top;
+}
+
+span.incomplete-item {
+    color: gray;
+}
+
+span.completed-item {
+    color:green;
+}
+
+.edit-task-buttons {
+    text-align:center;
+}
+
+.edit-task-btn {
+    margin:10px 5px;
 }
 
 .themes {

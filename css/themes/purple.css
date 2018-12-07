@@ -34,7 +34,7 @@ body {
     background-color:rgba(69, 29, 89, 0.9);
 }
 
-.current-list {
+.current-list, .list-item-edit-container {
     background-color:rgba(203, 141, 207, 0.3);
 }
 

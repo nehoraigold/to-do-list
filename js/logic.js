@@ -2,7 +2,7 @@ var ListLogic = {};
 
 ListLogic.allLists = [];
 
-ListLogic.updateList = function(updatedList) {
+ListLogic.updateList = function (updatedList) {
     for (var i = 0; i < ListLogic.allLists.length; i++) {
         var currentList = ListLogic.allLists[i];
         if (currentList.listID === updatedList.listID) {
@@ -17,6 +17,26 @@ ListLogic.updateList = function(updatedList) {
 ListLogic.listIDGenerator = 1;
 ListLogic.chosenTheme = "blue";
 
+ListLogic.createNewListItem = function (description) {
+    var newListItem = {
+        description: description,
+        id: Date.now(),
+        completed: false,
+        starred: false,
+        dueDate: null,
+        notes: ""
+    }
+    return newListItem;
+}
+ListLogic.emptyListItem = {
+    description: "",
+    id: Date.now(),
+    completed: false,
+    starred: false,
+    dueDate: null,
+    notes: ""
+}
+
 ListLogic.emptyList = {
     listTitle: "To Do",
     listID: 0,
@@ -24,7 +44,7 @@ ListLogic.emptyList = {
     completedItems: []
 }
 
-ListLogic.createNewList = function(newListName) {
+ListLogic.createNewList = function (newListName) {
     ListLogic.allLists.push({
         listTitle: newListName,
         listID: ListLogic.listIDGenerator,
@@ -35,13 +55,13 @@ ListLogic.createNewList = function(newListName) {
     ListLogic.saveAll();
 }
 
-ListLogic.deleteList = function(listID) {
+ListLogic.deleteList = function (listID) {
     var allListsMinusOne = ListLogic.allLists.filter(listObject => listObject.listID !== listID);
     ListLogic.allLists = allListsMinusOne;
     ListLogic.saveAll()
 }
 
-ListLogic.returnListObjectGivenID = function(givenListID) {
+ListLogic.returnListObjectGivenID = function (givenListID) {
     for (var i = 0; i < ListLogic.allLists.length; i++) {
         var currentList = ListLogic.allLists[i];
         if (currentList.listID === givenListID) {
@@ -51,31 +71,30 @@ ListLogic.returnListObjectGivenID = function(givenListID) {
     return false;
 }
 
-ListLogic.returnArrayOfListTitles = function() {
+ListLogic.returnArrayOfListTitles = function () {
     return ListLogic.allLists.map(listObject => listObject.listTitle);
 }
 
-ListLogic.returnArrayOfListIDs = function() {
+ListLogic.returnArrayOfListIDs = function () {
     return ListLogic.allLists.map(listObject => listObject.listID);
 }
 
-ListLogic.orderListItemsByStarred = function(listItems) {
+ListLogic.orderListItemsByStarred = function (listItems) {
     var starred = listItems.filter(item => item.starred === true);
     var unstarred = listItems.filter(item => item.starred === false);
     return starred.concat(unstarred);
-
 }
 
-ListLogic.updateChosenTheme = function(newTheme) {
+ListLogic.updateChosenTheme = function (newTheme) {
     ListLogic.chosenTheme = newTheme;
     ListLogic.saveAll();
 }
 
-ListLogic.loadTheme = function() {
-    document.getElementById('theme').setAttribute('href',`./css/themes/${ListLogic.chosenTheme}.css`);
+ListLogic.showTheme = function () {
+    document.getElementById('theme').setAttribute('href', `./css/themes/${ListLogic.chosenTheme}.css`);
 }
 
-ListLogic.saveAll = function() {
+ListLogic.saveAll = function () {
     var ToDoLists = {
         chosenTheme: ListLogic.chosenTheme,
         listIDGenerator: ListLogic.listIDGenerator,
@@ -84,15 +103,15 @@ ListLogic.saveAll = function() {
     window.localStorage.ToDoLists = JSON.stringify(ToDoLists);
 }
 
-ListLogic.loadAll = function() {
+ListLogic.loadAll = function () {
     var ToDoLists = JSON.parse(window.localStorage.ToDoLists);
     ListLogic.listIDGenerator = ToDoLists.listIDGenerator;
     ListLogic.allLists = ToDoLists.allLists;
     ListLogic.chosenTheme = ToDoLists.chosenTheme;
-    ListLogic.loadTheme();
+    ListLogic.showTheme();
 }
 
-ListLogic.initLists = function() {
+ListLogic.initLists = function () {
     if (window.localStorage.ToDoLists !== undefined) {
         ListLogic.loadAll();
     } else {
@@ -100,7 +119,7 @@ ListLogic.initLists = function() {
     }
 }
 
-ListLogic.start = function() {
+ListLogic.start = function () {
     ListLogic.initLists();
 }
 

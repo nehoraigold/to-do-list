@@ -1,43 +1,83 @@
 class EditListItem extends React.Component {
     constructor(props) {
         super(props);
+        this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
+        this.state = this.props.listItem;
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.listItem.id !== this.state.id) {
+            this.setState(newProps.listItem);
+        }
     }
 
     render() {
+        console.log(this.props.listItemID);
         return (
-            <div className='list-item-edit-screen'>
-                <h4>Edit Task</h4>
-                <form>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    Description:
-                            </td>
-                                <td>
-                                    <input type='text' value={"Dummy text"} className='edit-task-input' />
+            <div className='list-item-edit-container'>
+                <div className='list-item-edit-screen'>
+                    <h4>
+                        Edit Task
+                        <span onClick={this.cancelNewList} className="fas fa-times-circle edit-task-header-icon"></span>
+                    </h4>
+                    <form>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td className='form-desc'>
+                                        Description:
+                                    </td>
+                                    <td>
+                                        <textarea type='text' value={this.state.description} className='edit-task-input' rows="3" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className='form-desc'>
+                                        Status:
+                                    </td>
+                                    <td>
+                                        <div className='checkbox-container'>
+                                            <div className={`fas fa-check checkmark ${this.state.completed ? "" : "unchecked"}`}></div>
+                                            <input type='checkbox' className='input-checkbox' checked={this.state.completed} id={`edit-item-${this.state.id}`} />
+                                        </div>
+                                        <span className={`${this.state.completed ? "completed-item" : "incomplete-item"}`}>{this.state.completed ? "Complete" : "Incomplete"}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className='form-desc'>
+                                        Starred
+                                    </td>
+                                    <td>
+                                        <div className='star-item' onClick={this.toggleStar}>
+                                            <span className={`star ${this.state.starred ? 'fas fa-star starred' : 'far fa-star'}`}></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className='form-desc'>
+                                        Due Date:
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Due Date:
+                                    <td>
+                                        <input type='date' className='edit-task-input' value={this.state.duedDate}/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className='form-desc'>
+                                        Notes:
                                 </td>
-                                <td>
-                                    <input type='date' className='edit-task-input' />
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Notes:
-                                </td>
-                                <td>
-                                    <textarea className='edit-task-input' rows="5" />
-                                </td>
-
-                            </tr>
-                        </tbody>
-                    </table>
-                </form>
+                                    <td>
+                                        <textarea className='edit-task-input' rows="5" value={this.state.notes}/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div className='edit-task-buttons'>
+                            <button className='btn edit-task-btn'>Save</button>
+                            <button className='btn edit-task-btn'>Cancel</button>
+                            <button className='btn edit-task-btn btn-danger'>Delete Task</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         )
     }
@@ -49,6 +89,7 @@ class ListItem extends React.Component {
         this.toggleChecked = this.toggleChecked.bind(this);
         this.toggleStar = this.toggleStar.bind(this);
         this.removeItem = this.removeItem.bind(this);
+        this.openEditItemScreen = this.openEditItemScreen.bind(this);
         this.state = this.props.itemObj;
     }
 
@@ -62,6 +103,10 @@ class ListItem extends React.Component {
         this.setState({
             starred: !this.state.starred
         }, () => { this.props.handleUpdateItem(this.state) })
+    }
+
+    openEditItemScreen() {
+        this.props.handleEditItem(this.state)
     }
 
     removeItem() {
@@ -84,7 +129,7 @@ class ListItem extends React.Component {
                     <div className='star-item' onClick={this.toggleStar}>
                         <span className={`star ${this.state.starred ? 'fas fa-star starred' : 'far fa-star'}`}></span>
                     </div>
-                    <div className="edit-item" onClick={this.removeItem}>
+                    <div className="edit-item" onClick={this.openEditItemScreen}>
                         <div className="edit-item-dot"></div>
                         <div className="edit-item-dot"></div>
                         <div className="edit-item-dot"></div>
@@ -106,12 +151,7 @@ class AddListItem extends React.Component {
             return false;
         }
         if ((e.target.tagName === "INPUT" && e.keyCode === 13) || (e.target.tagName === "BUTTON")) {
-            var newItem = {
-                description: this.input.value,
-                id: Date.now(),
-                completed: false,
-                starred: false
-            }
+            var newItem = ListLogic.createNewListItem(this.input.value);
             this.props.handleAdd(newItem);
             this.input.value = "";
         }
@@ -138,6 +178,7 @@ class List extends React.Component {
         this.removeItemFromList = this.removeItemFromList.bind(this);
         this.toggleCompleted = this.toggleCompleted.bind(this);
         this.updateItem = this.updateItem.bind(this);
+        this.editItem = this.editItem.bind(this);
         this.renderCompletedItems = this.renderCompletedItems.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.state = ListLogic.returnListObjectGivenID(parseInt(this.props.listID));
@@ -220,12 +261,16 @@ class List extends React.Component {
         }, () => { ListLogic.updateList(this.state) })
     }
 
+    editItem(item) {
+        this.props.handleEditItem(item);
+    }
+
     deleteList() {
         this.props.handleDelete(this.state.listID);
     }
 
     renderListItems(listItems) {
-        return listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} handleUpdateItem={this.updateItem} />);
+        return listItems.map(item => <ListItem key={item.id} itemObj={item} handleRemoveItem={this.removeItemFromList} handleComplete={this.toggleCompleted} handleUpdateItem={this.updateItem} handleEditItem={this.editItem} />);
     }
 
     renderNoCompletedItemsMessage() {
@@ -325,7 +370,7 @@ class SideMenu extends React.Component {
 
     render() {
         return (
-            <div className='side-menu normal blue'>
+            <div className='side-menu'>
                 <ul className='all-list-titles'>
                     {this.renderListTitles()}
                     <li onClick={this.createNewList} className={`${this.state.isCreatingNewList ? "current-list-title" : ""}`}>+</li>
@@ -346,7 +391,7 @@ class TopMenu extends React.Component {
     changeTheme(e) {
         var newTheme = e.target.classList[1];
         ListLogic.updateChosenTheme(newTheme);
-        ListLogic.loadTheme();
+        ListLogic.showTheme();
     }
 
     renderThemeBoxes() {
@@ -355,9 +400,9 @@ class TopMenu extends React.Component {
 
     render() {
         return (
-            <div className='top-menu dark blue'>
+            <div className='top-menu'>
                 <span className='header'><span className='logo'>
-                    <span className="fas fa-clipboard-check"></span> naturaList</span>
+                    <span className="fas fa-leaf"></span> NaturaList</span>
                 </span>
                 <div className='themes'>
                     <span className='themes-label'>Themes</span>
@@ -378,17 +423,28 @@ class App extends React.Component {
         this.changeList = this.changeList.bind(this);
         this.createNewList = this.createNewList.bind(this);
         this.toggleCreateNewListMode = this.toggleCreateNewListMode.bind(this);
+        this.changeToEditingListItemMode = this.changeToEditingListItemMode.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.state = {
             selectedListIndex: 0,
             allLists: ListLogic.returnArrayOfListTitles(),
-            isCreatingNewList: false
+            isCreatingNewList: false,
+            isEditingListItem: false,
+            selectedListItem: null
         }
     }
 
     toggleCreateNewListMode() {
         this.setState({
-            isCreatingNewList: !this.state.isCreatingNewList
+            isCreatingNewList: !this.state.isCreatingNewList,
+            isEditingListItem: false
+        })
+    }
+
+    changeToEditingListItemMode(item) {
+        this.setState({
+            isEditingListItem: true,
+            selectedListItem: item
         })
     }
 
@@ -405,7 +461,8 @@ class App extends React.Component {
     changeList(newListIndex) {
         this.setState({
             selectedListIndex: newListIndex,
-            isCreatingNewList: false
+            isCreatingNewList: false,
+            isEditingListItem: false
         })
     }
 
@@ -416,13 +473,14 @@ class App extends React.Component {
         var arrayOfTitles = ListLogic.returnArrayOfListTitles();
         this.setState({
             selectedListIndex: nextListIndex,
-            allLists: arrayOfTitles
+            allLists: arrayOfTitles,
+            isEditingListItem: false
         })
     }
 
     renderLists() {
         var arrayOfIDs = ListLogic.returnArrayOfListIDs();
-        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList} />)
+        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList} handleEditItem={this.changeToEditingListItemMode} />)
     }
 
     showProperComponent() {
@@ -430,15 +488,19 @@ class App extends React.Component {
     }
 
     render() {
+        var style = {
+            width: this.state.isEditingListItem ? "50%" : "100%"
+        }
         return (
             <div>
                 <TopMenu />
-                <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} inCreateNewListMode={this.toggleCreateNewListMode} isCreatingNewList={this.state.isCreatingNewList} />
-                <div className='current-list light blue'>
-                    {this.showProperComponent()}
-                    {/* {this.renderLists()} */}
+                <div className='main-app'>
+                    <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} inCreateNewListMode={this.toggleCreateNewListMode} isCreatingNewList={this.state.isCreatingNewList} />
+                    <div className='current-list' style={style}>
+                        {this.showProperComponent()}
+                    </div>
+                    {this.state.isEditingListItem ? <EditListItem listItem={this.state.selectedListItem} /> : null}
                 </div>
-
             </div>
         )
     }
