@@ -1,19 +1,6 @@
 var ListLogic = {};
 
 ListLogic.allLists = [];
-
-ListLogic.updateList = function (updatedList) {
-    for (var i = 0; i < ListLogic.allLists.length; i++) {
-        var currentList = ListLogic.allLists[i];
-        if (currentList.listID === updatedList.listID) {
-            ListLogic.allLists[i] = updatedList;
-            ListLogic.saveAll();
-            return true;
-        }
-    }
-    return false;
-}
-
 ListLogic.listIDGenerator = 1;
 ListLogic.chosenTheme = "blue";
 
@@ -28,6 +15,7 @@ ListLogic.createNewListItem = function (description) {
     }
     return newListItem;
 }
+
 ListLogic.emptyListItem = {
     description: "",
     id: Date.now(),
@@ -61,14 +49,8 @@ ListLogic.deleteList = function (listID) {
     ListLogic.saveAll()
 }
 
-ListLogic.returnListObjectGivenID = function (givenListID) {
-    for (var i = 0; i < ListLogic.allLists.length; i++) {
-        var currentList = ListLogic.allLists[i];
-        if (currentList.listID === givenListID) {
-            return currentList;
-        }
-    }
-    return false;
+ListLogic.returnListObjectGivenID = function (listID) {
+    return ListLogic.allLists.filter(listObj => listObj.listID === listID)[0];
 }
 
 ListLogic.returnArrayOfListTitles = function () {
@@ -77,6 +59,58 @@ ListLogic.returnArrayOfListTitles = function () {
 
 ListLogic.returnArrayOfListIDs = function () {
     return ListLogic.allLists.map(listObject => listObject.listID);
+}
+
+ListLogic.addItemToList = function(item, listID) {
+    var list = ListLogic.returnListObjectGivenID(listID);
+    list.listItems.push(item);
+    ListLogic.saveAll()
+}
+
+ListLogic.removeItemFromList = function(item, listID) {
+    var list = ListLogic.returnListObjectGivenID(listID);
+    var listToRemoveFrom = item.completed ? "completedItems" : "listItems";
+    list[listToRemoveFrom] = list[listToRemoveFrom].filter((task) => task.id !== item.id);
+    ListLogic.saveAll();
+}
+
+ListLogic.toggleCompletedItemInList = function(item, listID) {
+    console.log('toggling completion for item')
+    var list = ListLogic.returnListObjectGivenID(listID);
+    if (item.completed) {
+        console.log('item is completed, so adding to completed items')
+        list.completedItems.push(item);
+        list.listItems = list.listItems.filter(task => task.id !== item.id);
+    } else {
+        list.listItems.push(item);
+        list.completedItems = list.completedItems.filter(task => task.id !== item.id);
+    }
+    ListLogic.saveAll();
+}
+
+ListLogic.updateListItem = function(item, listID) {
+    var list = ListLogic.returnListObjectGivenID(listID);
+    var oldItem;
+    var allListItemsTogether = list.listItems.slice().concat(list.completedItems.slice());
+    for (var i = 0; i < allListItemsTogether.length; i++) {
+        var currentItem = allListItemsTogether[i];
+        if (currentItem.id === item.id) {
+            oldItem = currentItem;
+            break;
+        }
+    }
+    if (oldItem.completed !== item.completed) {
+        ListLogic.toggleCompletedItemInList(item, listID);
+    } else {
+        var listToUpdateItemIn = item.completed ? "completedItems" : "listItems";
+        for (var i = 0; i < list[listToUpdateItemIn].length; i++) {
+            if (list[listToUpdateItemIn][i].id === item.id) {
+                list[listToUpdateItemIn][i] = item;
+                ListLogic.saveAll();
+                break;
+            }
+        }
+    }
 }
 
 ListLogic.orderListItemsByStarred = function (listItems) {

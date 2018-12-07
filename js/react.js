@@ -3,6 +3,10 @@ class EditListItem extends React.Component {
         super(props);
         this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
         this.closeEditItemScreen = this.closeEditItemScreen.bind(this);
+        this.saveChanges = this.saveChanges.bind(this);
+        this.changeInputField = this.changeInputField.bind(this);
+        this.toggleChecked = this.toggleChecked.bind(this);
+        this.toggleStar = this.toggleStar.bind(this);
         this.state = this.props.listItem;
     }
 
@@ -12,8 +16,44 @@ class EditListItem extends React.Component {
         }
     }
 
-    closeEditItemScreen(e) {
+    changeInputField(e) {
+        if (e.target === this.description) {
+            this.setState({
+                description: e.target.value
+            }, () => { console.log(this.state) })
+        } else if (e.target === this.notes) {
+            this.setState({
+                notes: e.target.value
+            }, () => { console.log(this.state) })
+        } else if (e.target === this.dueDate) {
+            this.setState({
+                dueDate: e.target.value
+            }, () => { console.log(this.state) })
+        }
+    }
+
+    toggleChecked() {
+        this.setState({
+            completed: !this.state.completed
+        }, () => { console.log(this.state) })
+    }
+
+    toggleStar() {
+        this.setState({
+            starred: !this.state.starred
+        })
+    }
+
+    saveChanges(e) {
         e.preventDefault();
+        var savedItem = this.state;
+        this.props.handleSaveItem(savedItem);
+    }
+
+    closeEditItemScreen(e) {
+        if (e !== null && e !== undefined) {
+            e.preventDefault();
+        }
         this.props.handleCloseEditItemScreen();
     }
 
@@ -33,7 +73,7 @@ class EditListItem extends React.Component {
                                         Description:
                                     </td>
                                     <td>
-                                        <textarea type='text' value={this.state.description} className='edit-task-input' rows="3" onChange={this.changeTextField}/>
+                                        <textarea ref={(description) => this.description = description} type='text' value={this.state.description} className='edit-task-input' rows="3" onChange={this.changeInputField} />
                                     </td>
                                 </tr>
                                 <tr>
@@ -41,11 +81,13 @@ class EditListItem extends React.Component {
                                         Status:
                                     </td>
                                     <td>
-                                        <div className='checkbox-container'>
-                                            <div className={`fas fa-check checkmark ${this.state.completed ? "" : "unchecked"}`}></div>
-                                            <input type='checkbox' className='input-checkbox' checked={this.state.completed} id={`edit-item-${this.state.id}`} />
-                                        </div>
-                                        <span className={`${this.state.completed ? "completed-item" : "incomplete-item"}`}>{this.state.completed ? "Complete" : "Incomplete"}</span>
+                                        <label htmlFor={`edit-item-${this.state.id}`}>
+                                            <div className='checkbox-container'>
+                                                <div className={`fas fa-check checkmark ${this.state.completed ? "" : "unchecked"}`}></div>
+                                                <input onChange={this.toggleChecked} type='checkbox' className='input-checkbox' checked={this.state.completed} id={`edit-item-${this.state.id}`} />
+                                            </div>
+                                            <span className={`${this.state.completed ? "completed-item" : "incomplete-item"}`}>{this.state.completed ? "Complete" : "Incomplete"}</span>
+                                        </label>
                                     </td>
                                 </tr>
                                 <tr>
@@ -63,7 +105,7 @@ class EditListItem extends React.Component {
                                         Due Date:
                                 </td>
                                     <td>
-                                        <input type='date' className='edit-task-input' value={this.state.duedDate}/>
+                                        <input ref={(dueDate) => { this.dueDate = dueDate }} type='date' className='edit-task-input' value={this.state.dueDate} onChange={this.changeInputField} />
                                     </td>
                                 </tr>
                                 <tr>
@@ -71,13 +113,13 @@ class EditListItem extends React.Component {
                                         Notes:
                                 </td>
                                     <td>
-                                        <textarea className='edit-task-input' rows="5" value={this.state.notes}/>
+                                        <textarea ref={(notes) => this.notes = notes} className='edit-task-input' rows="5" value={this.state.notes} onChange={this.changeInputField} />
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                         <div className='edit-task-buttons'>
-                            <button className='btn edit-task-btn'>Save Changes</button>
+                            <button onClick={this.saveChanges} className='btn edit-task-btn'>Save Changes</button>
                             <button onClick={this.closeEditItemScreen} className='btn edit-task-btn'>Cancel</button>
                             <button className='btn edit-task-btn btn-danger'>Delete Task</button>
                         </div>
@@ -96,6 +138,10 @@ class ListItem extends React.Component {
         this.removeItem = this.removeItem.bind(this);
         this.openEditItemScreen = this.openEditItemScreen.bind(this);
         this.state = this.props.itemObj;
+    }
+
+    componentWillReceiveProps(newProps) {
+        this.setState(newProps.itemObj);
     }
 
     toggleChecked() {
@@ -190,80 +236,28 @@ class List extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        if (this.state.listID !== newProps.listID) {
-            var listObject = ListLogic.allLists.filter(listObj => listObj.listID === newProps.listID)[0];
-            this.setState({
-                listTitle: listObject.listTitle,
-                listID: listObject.listID,
-                listItems: listObject.listItems,
-                completedItems: listObject.completedItems
-            })
-        }
+        var listObject = ListLogic.allLists.filter(listObj => listObj.listID === newProps.listID)[0];
+        this.setState(listObject);
     }
 
     addItemToList(item) {
-        var allItemsAsString = JSON.stringify(this.state.listItems);
-        var allItems = JSON.parse(allItemsAsString);
-        allItems.push(item);
-        this.setState({
-            listItems: allItems
-        }, () => { ListLogic.updateList(this.state) })
+        ListLogic.addItemToList(item, this.state.listID);
+        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
     }
 
     removeItemFromList(item) {
-        if (item.completed) {
-            var copyOfCompletedItems = JSON.parse(JSON.stringify(this.state.completedItems));
-            copyOfCompletedItems = copyOfCompletedItems.filter((task) => task.id !== item.id);
-            this.setState({
-                completedItems: copyOfCompletedItems
-            }, () => { ListLogic.updateList(this.state) });
-        } else {
-            var copyOfListItems = JSON.parse(JSON.stringify(this.state.listItems));
-            copyOfListItems = copyOfListItems.filter((task) => task.id !== item.id);
-            this.setState({
-                listItems: copyOfListItems
-            }, () => { ListLogic.updateList(this.state) });
-        }
+        ListLogic.removeItemFromList(item, this.state.listID);
+        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
     }
 
     toggleCompleted(item) {
-        var copyOfListItems = JSON.parse(JSON.stringify(this.state.listItems));
-        var copyOfCompletedItems = JSON.parse(JSON.stringify(this.state.completedItems));
-        if (item.completed) {
-            copyOfCompletedItems.push(item);
-            copyOfListItems = copyOfListItems.filter(task => task.id !== item.id);
-        } else {
-            copyOfListItems.push(item);
-            copyOfCompletedItems = copyOfCompletedItems.filter(task => task.id !== item.id);
-        }
-        this.setState({
-            listItems: copyOfListItems,
-            completedItems: copyOfCompletedItems
-        }, () => { ListLogic.updateList(this.state) });
+        ListLogic.toggleCompletedItemInList(item, this.state.listID);
+        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
     }
 
     updateItem(item) {
-        var copyOfCompletedItems = JSON.parse(JSON.stringify(this.state.completedItems));
-        var copyOfListItems = JSON.parse(JSON.stringify(this.state.listItems));
-        if (item.completed) {
-            for (var i = 0; i < copyOfCompletedItems.length; i++) {
-                if (copyOfCompletedItems[i].id === item.id) {
-                    copyOfCompletedItems[i] = item;
-                    break;
-                }
-            }
-        } else {
-            for (var i = 0; i < copyOfListItems.length; i++) {
-                if (copyOfListItems[i].id === item.id) {
-                    copyOfListItems[i] = item;
-                    break;
-                }
-            }
-        }
-        this.setState({
-            listItems: copyOfListItems,
-            completedItems: copyOfCompletedItems
-        }, () => { ListLogic.updateList(this.state) })
+        ListLogic.updateListItem(item, this.state.listID);
+        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
     }
 
     editItem(item) {
@@ -430,8 +424,10 @@ class App extends React.Component {
         this.toggleCreateNewListMode = this.toggleCreateNewListMode.bind(this);
         this.changeToEditingListItemMode = this.changeToEditingListItemMode.bind(this);
         this.closeEditItemScreen = this.closeEditItemScreen.bind(this);
+        this.saveListItem = this.saveListItem.bind(this);
         this.showEditItemScreenIfNeeded = this.showEditItemScreenIfNeeded.bind(this);
         this.deleteList = this.deleteList.bind(this);
+        this.render = this.render.bind(this);
         this.state = {
             selectedListIndex: 0,
             allLists: ListLogic.returnArrayOfListTitles(),
@@ -457,8 +453,14 @@ class App extends React.Component {
 
     closeEditItemScreen() {
         this.setState({
-            isEditingListItem: false
+            isEditingListItem: false,
+            selectedListItem: null
         })
+    }
+
+    saveListItem(item) {
+        ListLogic.updateListItem(item, ListLogic.returnArrayOfListIDs()[this.state.selectedListIndex])
+        this.closeEditItemScreen();
     }
 
     createNewList(newListName) {
@@ -501,7 +503,7 @@ class App extends React.Component {
     }
 
     showEditItemScreenIfNeeded() {
-        return (this.state.isEditingListItem ? <EditListItem listItem={this.state.selectedListItem} handleCloseEditItemScreen={this.closeEditItemScreen}/> : null);
+        return (this.state.isEditingListItem ? <EditListItem listItem={this.state.selectedListItem} handleCloseEditItemScreen={this.closeEditItemScreen} handleSaveItem={this.saveListItem} selectedListIndex={this.state.selectedListIndex} /> : null);
     }
 
     render() {
