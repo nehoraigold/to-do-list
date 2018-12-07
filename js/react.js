@@ -339,6 +339,8 @@ class TopMenu extends React.Component {
     constructor(props) {
         super(props);
         this.changeTheme = this.changeTheme.bind(this);
+        this.renderThemeBoxes = this.renderThemeBoxes.bind(this);
+        this.themes = ["blue", "green", "purple"]
     }
 
     changeTheme(e) {
@@ -347,17 +349,20 @@ class TopMenu extends React.Component {
         ListLogic.loadTheme();
     }
 
+    renderThemeBoxes() {
+        return this.themes.map((theme) => <div key={theme} onClick={this.changeTheme} className={`theme-box ${theme}`}></div>);
+    }
+
     render() {
         return (
             <div className='top-menu dark blue'>
                 <span className='header'><span className='logo'>
-                    <span className="fas fa-clipboard-check"></span> Listocracy</span>
+                    <span className="fas fa-clipboard-check"></span> naturaList</span>
                 </span>
                 <div className='themes'>
                     <span className='themes-label'>Themes</span>
                     <div className='theme-boxes'>
-                        <div onClick={this.changeTheme} className='theme-box blue'></div>
-                        <div onClick={this.changeTheme} className='theme-box green'></div>
+                        {this.renderThemeBoxes()}
                     </div>
                 </div>
             </div>
