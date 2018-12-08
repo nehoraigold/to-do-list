@@ -5,10 +5,13 @@ html {
 body {
     height:100%;
     width:100%;
+    font-family: 'Comfortaa', cursive;
+}
+
+body::after {
     background-size:cover;
     background-position: center;
     background-repeat: no-repeat;
-    font-family: 'Comfortaa', cursive;
 }
 
 #root, #root > div {
@@ -78,7 +81,7 @@ body {
 
 .current-list {
     width:50%;
-    min-width:500px;
+    min-width:400px;
     height:100%;
     display:inline-block;
     vertical-align: top;
@@ -197,10 +200,10 @@ h3.list-title {
     background-color:rgb(221,221,221);
     text-align:center;
     display:inline-block;
+    cursor:pointer;
 }
 
 .checkbox-container .checkmark {
-    /* color:rgb(0, 122, 197); */
     vertical-align:bottom;
 }
 
@@ -209,7 +212,8 @@ h3.list-title {
 }
 
 .input-checkbox {
-    opacity:0
+    opacity:0;
+    cursor:pointer;
 }
 
 .add-button {
@@ -221,6 +225,18 @@ h3.list-title {
 .star-item {
     position:absolute;
     right:30px;
+    display:inline-block;
+}
+
+.far.fa-star {
+    color:rgb(221,221,221);
+}
+
+.far.fa-star:hover {
+    color:goldenrod;
+}
+
+.fas.fa-star {
     color:goldenrod;
 }
 
@@ -286,6 +302,7 @@ h3.list-title {
     background-color:white;
     border-radius:15px;
     padding:20px;
+    border: 1px solid rgba(0,0,0,.125);
 }
 
 .edit-task-header-icon {
@@ -304,7 +321,6 @@ h3.list-title {
 
 .list-item-edit-container {
     overflow:auto;
-    width:40%;
     min-width: 420px;
 }
 
@@ -313,7 +329,12 @@ h3.list-title {
 }
 
 .list-item-edit-screen td {
-    padding:10px;
+    padding:10px 0;
+    width:30%;
+}
+
+.list-item-edit-screen label {
+    margin-bottom:0;
 }
 
 .list-item-edit-screen .edit-task-input {
@@ -324,17 +345,22 @@ h3.list-title {
     border:1px solid rgb(221,221,221);
 }
 
-span.incomplete-item, span.completed-item {
+span.incomplete-item, span.completed-item, span.starred-item, span.unstarred-item {
     margin:10px;
     vertical-align: top;
+    cursor:pointer;
 }
 
-span.incomplete-item {
+span.incomplete-item, span.unstarred-item {
     color: gray;
 }
 
 span.completed-item {
     color:green;
+}
+
+span.starred-item {
+    color:goldenrod;
 }
 
 .edit-task-buttons {
@@ -403,4 +429,85 @@ span.completed-item {
 
 .theme-box.purple {
     background-color: rgb(203, 141, 207);
+}
+
+.half-size {
+    width:50%;
+}
+
+.full-size {
+    width:100%;
+}
+
+@media screen and (max-width:1200px) {
+    .list-item-edit-screen td {
+        font-size:1.3vw;
+    }
+}
+
+@media screen and (max-width:1000px) {
+    .main-app {
+        display:block;
+        height:auto;
+    }
+
+    .side-menu {
+        width:100%;
+        max-width:none;
+        height:auto;
+        display:block;
+        overflow-x:auto;
+    }
+
+    .current-list {
+        height:auto;
+    }
+
+    .all-list-titles li {
+        display:inline-block;
+        padding:20px 40px;
+        font-size:24px;
+    }
+
+    .card {
+        height:8vw;
+        font-size:2vw;
+    }
+
+    .card button {
+        font-size: 2vw;
+    }
+
+    .checkbox-container {
+        height:2vw;
+        width:2vw;
+    }
+
+    .checkbox-container .checkmark {
+        vertical-align:middle;
+    }
+
+    .half-size {
+        width:100%;
+    }
+
+    .add-button {
+        top:auto;
+    }
+}
+
+@media screen and (max-width:768px) {
+    .card {
+        height:10vw;
+        font-size:3vw;
+    }
+
+    .card button {
+        font-size: 3vw;
+    }
+
+    .checkbox-container {
+        height:3vw;
+        width:3vw;
+    }
 }

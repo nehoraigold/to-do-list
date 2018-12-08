@@ -75,10 +75,8 @@ ListLogic.removeItemFromList = function(item, listID) {
 }
 
 ListLogic.toggleCompletedItemInList = function(item, listID) {
-    console.log('toggling completion for item')
     var list = ListLogic.returnListObjectGivenID(listID);
     if (item.completed) {
-        console.log('item is completed, so adding to completed items')
         list.completedItems.push(item);
         list.listItems = list.listItems.filter(task => task.id !== item.id);
     } else {

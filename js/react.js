@@ -7,6 +7,7 @@ class EditListItem extends React.Component {
         this.changeInputField = this.changeInputField.bind(this);
         this.toggleChecked = this.toggleChecked.bind(this);
         this.toggleStar = this.toggleStar.bind(this);
+        this.deleteItem = this.deleteItem.bind(this);
         this.state = this.props.listItem;
     }
 
@@ -20,22 +21,22 @@ class EditListItem extends React.Component {
         if (e.target === this.description) {
             this.setState({
                 description: e.target.value
-            }, () => { console.log(this.state) })
+            })
         } else if (e.target === this.notes) {
             this.setState({
                 notes: e.target.value
-            }, () => { console.log(this.state) })
+            })
         } else if (e.target === this.dueDate) {
             this.setState({
                 dueDate: e.target.value
-            }, () => { console.log(this.state) })
+            })
         }
     }
 
     toggleChecked() {
         this.setState({
             completed: !this.state.completed
-        }, () => { console.log(this.state) })
+        })
     }
 
     toggleStar() {
@@ -50,6 +51,12 @@ class EditListItem extends React.Component {
         this.props.handleSaveItem(savedItem);
     }
 
+    deleteItem(e) {
+        e.preventDefault();
+        var itemToDelete = this.state;
+        this.props.handleDeleteItem(itemToDelete);
+    }
+
     closeEditItemScreen(e) {
         if (e !== null && e !== undefined) {
             e.preventDefault();
@@ -59,7 +66,7 @@ class EditListItem extends React.Component {
 
     render() {
         return (
-            <div className='list-item-edit-container'>
+            <div className='list-item-edit-container half-size'>
                 <div className='list-item-edit-screen'>
                     <h4>
                         Edit Task
@@ -72,7 +79,7 @@ class EditListItem extends React.Component {
                                     <td className='form-desc'>
                                         Description:
                                     </td>
-                                    <td>
+                                    <td colSpan='2'>
                                         <textarea ref={(description) => this.description = description} type='text' value={this.state.description} className='edit-task-input' rows="3" onChange={this.changeInputField} />
                                     </td>
                                 </tr>
@@ -89,22 +96,26 @@ class EditListItem extends React.Component {
                                             <span className={`${this.state.completed ? "completed-item" : "incomplete-item"}`}>{this.state.completed ? "Complete" : "Incomplete"}</span>
                                         </label>
                                     </td>
+                                    <td >
+                                        <label onClick={this.toggleStar}>
+                                            <div className='star-item'>
+                                                <span className={`star ${this.state.starred ? 'fas fa-star starred' : 'far fa-star'}`}></span>
+                                            </div>
+                                            <span className={`${this.state.starred ? "starred-item" : "unstarred-item"}`}>{this.state.starred ? "Starred" : "Unstarred"}</span>
+                                        </label>
+                                    </td>
                                 </tr>
-                                <tr>
+                                {/* <tr>
                                     <td className='form-desc'>
                                         Starred:
                                     </td>
-                                    <td>
-                                        <div className='star-item' onClick={this.toggleStar}>
-                                            <span className={`star ${this.state.starred ? 'fas fa-star starred' : 'far fa-star'}`}></span>
-                                        </div>
-                                    </td>
-                                </tr>
+                                    
+                                </tr> */}
                                 <tr>
                                     <td className='form-desc'>
                                         Due Date:
-                                </td>
-                                    <td>
+                                    </td>
+                                    <td colSpan='2'>
                                         <input ref={(dueDate) => { this.dueDate = dueDate }} type='date' className='edit-task-input' value={this.state.dueDate} onChange={this.changeInputField} />
                                     </td>
                                 </tr>
@@ -112,7 +123,7 @@ class EditListItem extends React.Component {
                                     <td className='form-desc'>
                                         Notes:
                                 </td>
-                                    <td>
+                                    <td colSpan='2'>
                                         <textarea ref={(notes) => this.notes = notes} className='edit-task-input' rows="5" value={this.state.notes} onChange={this.changeInputField} />
                                     </td>
                                 </tr>
@@ -121,7 +132,7 @@ class EditListItem extends React.Component {
                         <div className='edit-task-buttons'>
                             <button onClick={this.saveChanges} className='btn edit-task-btn'>Save Changes</button>
                             <button onClick={this.closeEditItemScreen} className='btn edit-task-btn'>Cancel</button>
-                            <button className='btn edit-task-btn btn-danger'>Delete Task</button>
+                            <button onClick={this.deleteItem} className='btn edit-task-btn btn-danger'>Delete Task</button>
                         </div>
                     </form>
                 </div>
@@ -226,7 +237,6 @@ class List extends React.Component {
         super(props);
         this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
         this.addItemToList = this.addItemToList.bind(this);
-        this.removeItemFromList = this.removeItemFromList.bind(this);
         this.toggleCompleted = this.toggleCompleted.bind(this);
         this.updateItem = this.updateItem.bind(this);
         this.editItem = this.editItem.bind(this);
@@ -242,11 +252,6 @@ class List extends React.Component {
 
     addItemToList(item) {
         ListLogic.addItemToList(item, this.state.listID);
-        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
-    }
-
-    removeItemFromList(item) {
-        ListLogic.removeItemFromList(item, this.state.listID);
         this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
     }
 
@@ -425,6 +430,7 @@ class App extends React.Component {
         this.changeToEditingListItemMode = this.changeToEditingListItemMode.bind(this);
         this.closeEditItemScreen = this.closeEditItemScreen.bind(this);
         this.saveListItem = this.saveListItem.bind(this);
+        this.removeItemFromList = this.removeItemFromList.bind(this);
         this.showEditItemScreenIfNeeded = this.showEditItemScreenIfNeeded.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.render = this.render.bind(this);
@@ -460,6 +466,11 @@ class App extends React.Component {
 
     saveListItem(item) {
         ListLogic.updateListItem(item, ListLogic.returnArrayOfListIDs()[this.state.selectedListIndex])
+        this.closeEditItemScreen();
+    }
+
+    removeItemFromList(item) {
+        ListLogic.removeItemFromList(item, ListLogic.returnArrayOfListIDs()[this.state.selectedListIndex]);
         this.closeEditItemScreen();
     }
 
@@ -503,19 +514,17 @@ class App extends React.Component {
     }
 
     showEditItemScreenIfNeeded() {
-        return (this.state.isEditingListItem ? <EditListItem listItem={this.state.selectedListItem} handleCloseEditItemScreen={this.closeEditItemScreen} handleSaveItem={this.saveListItem} selectedListIndex={this.state.selectedListIndex} /> : null);
+        return (this.state.isEditingListItem ? <EditListItem listItem={this.state.selectedListItem} handleCloseEditItemScreen={this.closeEditItemScreen} handleSaveItem={this.saveListItem} handleDeleteItem={this.removeItemFromList} selectedListIndex={this.state.selectedListIndex} /> : null);
     }
 
     render() {
-        var style = {
-            width: this.state.isEditingListItem ? "50%" : "100%"
-        }
+        var classes = this.state.isEditingListItem ? "current-list half-size" : "current-list full-size";
         return (
             <div>
                 <TopMenu />
                 <div className='main-app'>
                     <SideMenu allLists={this.state.allLists} currentList={this.state.selectedListIndex} handleChangeList={this.changeList} inCreateNewListMode={this.toggleCreateNewListMode} isCreatingNewList={this.state.isCreatingNewList} />
-                    <div className='current-list' style={style}>
+                    <div className={`${classes}`}>
                         {this.showProperComponent()}
                     </div>
                     {this.showEditItemScreenIfNeeded()}

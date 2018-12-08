@@ -1,5 +1,13 @@
-body {
+body::after {
+    content:"";
+    position:fixed;
     background-image:url(../../images/grass.jpg);
+    background-color:rgba(70, 186, 0, 0.3);
+    z-index:-1;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
 }
 
 ::-webkit-scrollbar-track {
@@ -32,10 +40,6 @@ body {
 
 .current-list-title {
     background-color:rgba(0, 43, 0, 0.9);
-}
-
-.current-list, .list-item-edit-container {
-    background-color:rgba(70, 186, 0, 0.3);
 }
 
 .list-title {
@@ -89,4 +93,8 @@ body {
 .no-items-completed-message {
     color:whitesmoke;
     text-shadow: 1px 1px 1px rgb(0, 43, 0);
+}
+
+.edit-task-header-icon:hover {
+    color:rgb(0, 106, 0);
 }
