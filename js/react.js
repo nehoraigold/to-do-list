@@ -45,6 +45,7 @@ class EditListItem extends React.Component {
 
     saveChanges(e) {
         e.preventDefault();
+        this.state.dueDate === null ? null : ListLogic.returnFormattedDate(this.state.dueDate);
         var savedItem = this.state;
         this.props.handleSaveItem(savedItem);
     }
@@ -159,6 +160,22 @@ class ListItem extends React.Component {
         }, () => { this.props.handleUpdateItem(this.state) })
     }
 
+    renderDueDateIfNeeded() {
+        if (this.state.dueDate === null) {
+            return null;
+        }
+        var coloring = 'item-due-date';
+        if (this.state.completed) {
+            coloring += " due-date-complete"
+        } else if (ListLogic.compareDateToToday(this.state.dueDate) === "past") {
+            coloring += " due-date-past"
+        }
+        return (
+            <div className={`${coloring}`}>{ListLogic.returnFormattedDate(this.state.dueDate)}</div>
+        )
+    }
+
+
     openEditItemScreen() {
         this.props.handleEditItem(this.state)
     }
@@ -180,6 +197,7 @@ class ListItem extends React.Component {
                     <label htmlFor={`item-${this.state.id}`} className='task-container'>
                         <div>{this.state.description}</div>
                     </label>
+                    {this.renderDueDateIfNeeded()}
                     <div className='star-item' onClick={this.toggleStar}>
                         <span className={`star ${this.state.starred ? 'fas fa-star starred' : 'far fa-star'}`}></span>
                     </div>
@@ -305,7 +323,7 @@ class List extends React.Component {
 
     renderProperTitle() {
         return this.state.isEditingTitle ? (
-            <ProtoList listTitle={this.state.listTitle} confirm={this.confirmListNameChange} cancel={this.toggleIsChangingListName}/>
+            <ProtoList listTitle={this.state.listTitle} confirm={this.confirmListNameChange} cancel={this.toggleIsChangingListName} />
         ) : (
                 <div>
                     <h3 className='list-title' onDoubleClick={this.toggleIsChangingListName}>

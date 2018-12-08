@@ -123,6 +123,42 @@ ListLogic.orderListItemsByStarred = function (listItems) {
     return starred.concat(unstarred);
 }
 
+ListLogic.returnFormattedDate = function(dateAsString) {
+    return dateAsString.replace('-0','-').split('-').reverse().join("/");
+}
+
+ListLogic.compareDateToToday = function(date) {
+    date = ListLogic.returnFormattedDate(date);
+    var dateArray = date.split('/');
+    var dateDay = parseInt(dateArray[0]);
+    var dateMonth = parseInt(dateArray[1]);
+    var dateYear = parseInt(dateArray[2]);
+    var today = new Date();
+    var todayDay = today.getDate();
+    var todayMonth = today.getMonth() + 1;
+    var todayYear = today.getFullYear();
+    if (dateYear > todayYear) {
+        return "future";
+    } else if (dateYear < todayYear) {
+        return "past"
+    } else {
+        if (dateMonth > todayMonth) {
+            return "future";
+        } else if (dateMonth < todayMonth) {
+            return "past"
+        } else {
+            if (dateDay > todayDay) {
+                return "future";
+            } else if (dateDay < todayDay) {
+                return "past";
+            } else {
+                return "today"
+            }
+        }
+    }
+
+}
+
 ListLogic.updateChosenTheme = function (newTheme) {
     ListLogic.chosenTheme = newTheme;
     ListLogic.saveAll();

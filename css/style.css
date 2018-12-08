@@ -227,6 +227,20 @@ h3.list-title {
     right:20px;
 }
 
+.item-due-date {
+    position:absolute;
+    right:70px;
+    font-style:italic;
+}
+
+.due-date-complete {
+    text-decoration: line-through;
+}
+
+.due-date-past {
+    color:red;
+}
+
 .star-item {
     position:absolute;
     right:30px;
@@ -492,6 +506,10 @@ span.starred-item {
         font-size: 2vw;
     }
 
+    .item-due-date{
+        font-size: 1.7vw;
+    }
+
     .checkbox-container {
         height:2vw;
         width:2vw;
@@ -517,23 +535,29 @@ span.starred-item {
 @media screen and (max-width:768px) {
     .card {
         height:auto;
-        font-size:3vw;
+        font-size:2.5vw;
     }
 
     .card button {
-        font-size: 3vw;
+        font-size: 2.5vw;
     }
 
     .list-item-edit-container  {
-        font-size: 3vw;
+        font-size: 2.5vw;
     }
 
     .checkbox-container {
-        height:3vw;
-        width:3vw;
+        height:2.5vw;
+        width:2.5vw;
     }
 
     .list-item-edit-screen td {
-        font-size:3vw;
+        font-size:2.5vw;
+    }
+}
+
+@media screen and (max-width:700px) {
+    .item-due-date {
+        display:none;
     }
 }
