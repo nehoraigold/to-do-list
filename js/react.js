@@ -228,14 +228,24 @@ class List extends React.Component {
     constructor(props) {
         super(props);
         this.componentWillReceiveProps = this.componentWillReceiveProps.bind(this);
+        this.returnState = this.returnState.bind(this);
         this.addItemToList = this.addItemToList.bind(this);
         this.toggleCompleted = this.toggleCompleted.bind(this);
         this.updateItem = this.updateItem.bind(this);
         this.editItem = this.editItem.bind(this);
-        this.changeListName = this.changeListName.bind(this);
+        this.toggleIsChangingListName = this.toggleIsChangingListName.bind(this);
+        this.confirmListNameChange = this.confirmListNameChange.bind(this);
         this.renderCompletedItems = this.renderCompletedItems.bind(this);
+        this.renderProperTitle = this.renderProperTitle.bind(this);
         this.deleteList = this.deleteList.bind(this);
-        this.state = ListLogic.returnListObjectGivenID(parseInt(this.props.listID));
+        this.state = this.returnState(this.props.listID);
+    }
+
+    returnState(listIDAsProp) {
+        var listID = (listIDAsProp === null || listIDAsProp === undefined) ? this.state.listID : listIDAsProp;
+        var state = JSON.parse(JSON.stringify(ListLogic.returnListObjectGivenID(parseInt(listID))));
+        state.isEditingTitle = this.state === undefined ? false : this.state.isEditingTitle;
+        return state;
     }
 
     componentWillReceiveProps(newProps) {
@@ -245,17 +255,17 @@ class List extends React.Component {
 
     addItemToList(item) {
         ListLogic.addItemToList(item, this.state.listID);
-        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
+        this.setState(this.returnState());
     }
 
     toggleCompleted(item) {
         ListLogic.toggleCompletedItemInList(item, this.state.listID);
-        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)), () => {this.props.handleUpdateItem(item)});
+        this.setState(this.returnState(), () => { this.props.handleUpdateItem(item) });
     }
 
     updateItem(item) {
         ListLogic.updateListItem(item, this.state.listID);
-        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)), () => {this.props.handleUpdateItem(item)});
+        this.setState(this.returnState(), () => { this.props.handleUpdateItem(item) });
     }
 
     editItem(item) {
@@ -266,13 +276,19 @@ class List extends React.Component {
         this.props.handleDelete(this.state.listID);
     }
 
-    changeListName() {
-        var newName = prompt("Choose the name you want to give to your list");
+    toggleIsChangingListName() {
+        this.setState({
+            isEditingTitle: !this.state.isEditingTitle
+        });
+    }
+
+    confirmListNameChange(newName) {
         if (newName.trim() === "" || newName === null || newName === undefined) {
             return false;
         }
         ListLogic.changeListName(newName, this.state.listID);
-        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)), () => {this.props.handleChangeListName()});
+        this.state.isEditingTitle = false;
+        this.setState(this.returnState(), () => { this.props.handleChangeListName() });
     }
 
     renderListItems(listItems) {
@@ -287,16 +303,26 @@ class List extends React.Component {
         return this.state.completedItems.length === 0 ? this.renderNoCompletedItemsMessage() : this.renderListItems(ListLogic.orderListItemsByStarred(this.state.completedItems));
     }
 
+    renderProperTitle() {
+        return this.state.isEditingTitle ? (
+            <ProtoList listTitle={this.state.listTitle} confirm={this.confirmListNameChange} cancel={this.toggleIsChangingListName}/>
+        ) : (
+                <div>
+                    <h3 className='list-title'>
+                        {this.state.listTitle}
+                        <span onClick={this.deleteList} className="fas fa-trash-alt list-title-icon trash-can"></span>
+                        <span onClick={this.toggleIsChangingListName} className='fas fa-pencil-alt list-title-icon'></span>
+                    </h3 >
+                    <AddListItem handleAdd={this.addItemToList} />
+                </div>
+            );
+    }
+
     render() {
         return (
             this.props.visible ? (
                 <div className='list'>
-                    <h3 className='list-title'>
-                        {this.state.listTitle}
-                        <span onClick={this.deleteList} className="fas fa-trash-alt list-title-icon trash-can"></span>
-                        <span onClick={this.changeListName} className='fas fa-pencil-alt list-title-icon'></span>
-                        </h3>
-                    <AddListItem handleAdd={this.addItemToList} />
+                    {this.renderProperTitle()}
                     <div className='list-items'>
                         {this.renderListItems(ListLogic.orderListItemsByStarred(this.state.listItems))}
                     </div>
@@ -314,8 +340,19 @@ class List extends React.Component {
 class ProtoList extends React.Component {
     constructor(props) {
         super(props);
-        this.confirmNewList = this.confirmNewList.bind(this);
-        this.cancelNewList = this.cancelNewList.bind(this);
+        this.confirmList = this.confirmNewList.bind(this);
+        this.cancelList = this.cancelNewList.bind(this);
+        this.changeInput = this.changeInput.bind(this);
+        this.componentDidMount = this.componentDidMount.bind(this);
+        this.state = {
+            title: this.props.listTitle
+        }
+    }
+
+    componentDidMount() {
+        this.input.focus();
+        this.input.selectionStart = this.input.value.length;
+        this.input.selectionEnd = this.input.value.length;
     }
 
     confirmNewList(e) {
@@ -324,23 +361,29 @@ class ProtoList extends React.Component {
         }
         if ((e.target.tagName === "INPUT" && e.keyCode === 13) || (e.target.tagName === "SPAN")) {
             var newListName = this.input.value;
-            this.props.createList(newListName);
+            this.props.confirm(newListName);
         }
     }
 
+    changeInput(e) {
+        this.setState({
+            title: e.target.value
+        })
+    }
+
     cancelNewList(e) {
-        this.props.cancelList()
+        this.props.cancel()
     }
 
     render() {
         return (
             <div className='list'>
                 <h3 className='list-title'>
-                    <input type='text' className='list-title' placeholder="New List Title" onKeyUp={this.confirmNewList} ref={(input) => { this.input = input }} />
-                    <span onClick={this.cancelNewList} className="fas fa-times-circle list-title-icon proto-list-option"></span>
-                    <span onClick={this.confirmNewList} className='fas fa-check-circle list-title-icon proto-list-option'></span>
+                    <input autofocus={true} type='text' className='list-title' placeholder="New List Title" onChange={this.changeInput} onKeyUp={this.confirmList} ref={(input) => { this.input = input }} value={this.state.title} />
+                    <span onClick={this.cancelList} className="fas fa-times-circle list-title-icon proto-list-option"></span>
+                    <span onClick={this.confirmList} className='fas fa-check-circle list-title-icon proto-list-option'></span>
                 </h3>
-                <div className='alert alert-danger' role='alert'>Please title your list before adding new items.</div>
+                <div className='alert alert-danger' role='alert'>Please save your list title before adding new tasks.</div>
             </div>
         )
     }
@@ -473,6 +516,9 @@ class App extends React.Component {
     }
 
     updateListItem(item) {
+        if (this.state.selectedListItem === null) {
+            return false;
+        }
         ListLogic.updateListItem(item, ListLogic.returnArrayOfListIDs()[this.state.selectedListIndex]);
         if (this.state.selectedListItem.id === item.id && this.state.isEditingListItem) {
             this.setState({
@@ -502,8 +548,6 @@ class App extends React.Component {
     }
 
     changeListName() {
-        console.log("got to app - chaning list name");
-        console.log(ListLogic.allLists)
         var arrayOfTitles = ListLogic.returnArrayOfListTitles();
         this.setState({
             allLists: arrayOfTitles
@@ -532,11 +576,11 @@ class App extends React.Component {
 
     renderLists() {
         var arrayOfIDs = ListLogic.returnArrayOfListIDs();
-        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList} handleChangeListName={this.changeListName} handleEditItem={this.changeToEditingListItemMode} handleUpdateItem={this.updateListItem}/>)
+        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList} handleChangeListName={this.changeListName} handleEditItem={this.changeToEditingListItemMode} handleUpdateItem={this.updateListItem} />)
     }
 
     showProperComponent() {
-        return this.state.isCreatingNewList ? <ProtoList createList={this.createNewList} cancelList={this.toggleCreateNewListMode} /> : this.renderLists();
+        return this.state.isCreatingNewList ? <ProtoList listTitle={""} confirm={this.createNewList} cancel={this.toggleCreateNewListMode} /> : this.renderLists();
     }
 
     showEditItemScreenIfNeeded() {

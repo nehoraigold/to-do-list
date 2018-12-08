@@ -58,6 +58,7 @@ body::after {
     width:15%;
     max-width: 200px;
     height:100%;
+    overflow-y:auto;
 }
 
 .all-list-titles {
@@ -461,6 +462,7 @@ span.starred-item {
         height:auto;
         display:block;
         overflow-x:auto;
+        
     }
 
     .current-list {
