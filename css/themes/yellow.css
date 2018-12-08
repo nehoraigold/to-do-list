@@ -1,0 +1,100 @@
+body::after {
+    content:"";
+    position:fixed;
+    background-image:url(../../images/tree.jpg);
+    background-color:rgba(255, 223, 8, 0.3);
+    z-index:-1;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+}
+
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px rgb(255, 223, 8); 
+}
+ 
+::-webkit-scrollbar-thumb {
+    background: rgb(95, 67, 34);
+}
+
+.top-menu {
+    background-color:rgba(95, 67, 34, 0.9);
+}
+
+.top-menu .header {
+    color:rgb(221,221,221);
+}
+
+.side-menu {
+    background-color: rgba(226, 178, 81, 0.7);
+}
+
+.all-list-titles li {
+    color:white;
+}
+
+.all-list-titles li:hover {
+    background-color: rgba(95, 67, 34, 0.5)
+}
+
+.current-list-title {
+    background-color:rgba(95, 67, 34, 0.9);
+}
+
+.list-title {
+    text-shadow: 3px 3px 3px rgb(95, 67, 34);
+}
+
+.list-title::placeholder {
+    color:rgb(221,221,221);
+}
+
+.list-title::-webkit-input-placeholder {
+    color:rgb(221,221,221);
+}
+
+.list-title:-moz-placeholder {
+    color:rgb(221,221,221);
+}
+
+.list-title::-moz-placeholder {
+    color:rgb(221,221,221);
+}
+
+.list-title .trash-can:hover {
+    color:rgb(221,221,221);
+}
+
+.proto-list-option {
+    color:rgb(221,221,221);
+}
+
+.proto-list-option:hover {
+    color:white;
+}
+
+.alert-danger {
+    box-shadow: 4px 4px 5px rgb(95, 67, 34);
+}
+
+.checkbox-container .checkmark {
+    color:rgb(95, 67, 34)
+}
+
+.list .card .edit-item:hover .edit-item-dot {
+    background-color:rgba(95, 67, 34, 0.9);
+}
+
+.edit-item-dot {
+    background-color: rgba(226, 178, 81, 0.7);
+}
+
+.no-items-completed-message {
+    color:whitesmoke;
+    text-shadow: 1px 1px 1px rgb(95, 67, 34);
+}
+
+.edit-task-header-icon:hover {
+    color:rgb(226, 178, 81);
+}

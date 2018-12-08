@@ -308,7 +308,7 @@ class List extends React.Component {
             <ProtoList listTitle={this.state.listTitle} confirm={this.confirmListNameChange} cancel={this.toggleIsChangingListName}/>
         ) : (
                 <div>
-                    <h3 className='list-title'>
+                    <h3 className='list-title' onDoubleClick={this.toggleIsChangingListName}>
                         {this.state.listTitle}
                         <span onClick={this.deleteList} className="fas fa-trash-alt list-title-icon trash-can"></span>
                         <span onClick={this.toggleIsChangingListName} className='fas fa-pencil-alt list-title-icon'></span>
@@ -379,7 +379,7 @@ class ProtoList extends React.Component {
         return (
             <div className='list'>
                 <h3 className='list-title'>
-                    <input autofocus={true} type='text' className='list-title' placeholder="New List Title" onChange={this.changeInput} onKeyUp={this.confirmList} ref={(input) => { this.input = input }} value={this.state.title} />
+                    <input autofocus={true} type='text' className='list-title list-title-input' placeholder="New List Title" onChange={this.changeInput} onKeyUp={this.confirmList} ref={(input) => { this.input = input }} value={this.state.title} />
                     <span onClick={this.cancelList} className="fas fa-times-circle list-title-icon proto-list-option"></span>
                     <span onClick={this.confirmList} className='fas fa-check-circle list-title-icon proto-list-option'></span>
                 </h3>
@@ -438,7 +438,7 @@ class TopMenu extends React.Component {
         super(props);
         this.changeTheme = this.changeTheme.bind(this);
         this.renderThemeBoxes = this.renderThemeBoxes.bind(this);
-        this.themes = ["blue", "green", "purple"]
+        this.themes = ["blue", "green", "purple", "yellow"]
     }
 
     changeTheme(e) {

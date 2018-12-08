@@ -143,6 +143,10 @@ h3.list-title {
     color:rgb(221,221,221);
 }
 
+.list-title-input {
+    font-style:italic;
+}
+
 .proto-list-option {
     color:rgb(221,221,221);
 }
@@ -413,7 +417,7 @@ span.starred-item {
 }
 
 .themes:hover .themes-label{
-    right:80px;
+    right:110px;
 }
 
 .themes:hover .theme-boxes {
@@ -434,6 +438,10 @@ span.starred-item {
 
 .theme-box.purple {
     background-color: rgb(203, 141, 207);
+}
+
+.theme-box.yellow {
+    background-color: rgb(255, 223, 8);
 }
 
 .half-size {
@@ -489,6 +497,10 @@ span.starred-item {
         width:2vw;
     }
 
+    .list-item-edit-screen td {
+        font-size:2vw;
+    }
+
     .checkbox-container .checkmark {
         vertical-align:middle;
     }
@@ -512,8 +524,16 @@ span.starred-item {
         font-size: 3vw;
     }
 
+    .list-item-edit-container  {
+        font-size: 3vw;
+    }
+
     .checkbox-container {
         height:3vw;
         width:3vw;
+    }
+
+    .list-item-edit-screen td {
+        font-size:3vw;
     }
 }
