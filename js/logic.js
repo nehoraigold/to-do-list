@@ -49,6 +49,12 @@ ListLogic.deleteList = function (listID) {
     ListLogic.saveAll()
 }
 
+ListLogic.changeListName = function(newName, listID) {
+    var list = ListLogic.allLists.filter((listObj) => listObj.listID === listID)[0];
+    list.listTitle = newName;
+    ListLogic.saveAll();
+}
+
 ListLogic.returnListObjectGivenID = function (listID) {
     return ListLogic.allLists.filter(listObj => listObj.listID === listID)[0];
 }

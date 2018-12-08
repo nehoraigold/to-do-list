@@ -12,9 +12,7 @@ class EditListItem extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        if (newProps.listItem.id !== this.state.id) {
-            this.setState(newProps.listItem);
-        }
+        this.setState(newProps.listItem);
     }
 
     changeInputField(e) {
@@ -105,12 +103,6 @@ class EditListItem extends React.Component {
                                         </label>
                                     </td>
                                 </tr>
-                                {/* <tr>
-                                    <td className='form-desc'>
-                                        Starred:
-                                    </td>
-                                    
-                                </tr> */}
                                 <tr>
                                     <td className='form-desc'>
                                         Due Date:
@@ -185,8 +177,8 @@ class ListItem extends React.Component {
                             <input type='checkbox' className='input-checkbox' onChange={this.toggleChecked} checked={this.state.completed} id={`item-${this.state.id}`} />
                         </div>
                     </label>
-                    <label htmlFor={`item-${this.state.id}`}>
-                        <div className='task-container'>{this.state.description}</div>
+                    <label htmlFor={`item-${this.state.id}`} className='task-container'>
+                        <div>{this.state.description}</div>
                     </label>
                     <div className='star-item' onClick={this.toggleStar}>
                         <span className={`star ${this.state.starred ? 'fas fa-star starred' : 'far fa-star'}`}></span>
@@ -240,6 +232,7 @@ class List extends React.Component {
         this.toggleCompleted = this.toggleCompleted.bind(this);
         this.updateItem = this.updateItem.bind(this);
         this.editItem = this.editItem.bind(this);
+        this.changeListName = this.changeListName.bind(this);
         this.renderCompletedItems = this.renderCompletedItems.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.state = ListLogic.returnListObjectGivenID(parseInt(this.props.listID));
@@ -257,12 +250,12 @@ class List extends React.Component {
 
     toggleCompleted(item) {
         ListLogic.toggleCompletedItemInList(item, this.state.listID);
-        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
+        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)), () => {this.props.handleUpdateItem(item)});
     }
 
     updateItem(item) {
         ListLogic.updateListItem(item, this.state.listID);
-        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)));
+        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)), () => {this.props.handleUpdateItem(item)});
     }
 
     editItem(item) {
@@ -271,6 +264,15 @@ class List extends React.Component {
 
     deleteList() {
         this.props.handleDelete(this.state.listID);
+    }
+
+    changeListName() {
+        var newName = prompt("Choose the name you want to give to your list");
+        if (newName.trim() === "" || newName === null || newName === undefined) {
+            return false;
+        }
+        ListLogic.changeListName(newName, this.state.listID);
+        this.setState(ListLogic.returnListObjectGivenID(parseInt(this.state.listID)), () => {this.props.handleChangeListName()});
     }
 
     renderListItems(listItems) {
@@ -289,7 +291,11 @@ class List extends React.Component {
         return (
             this.props.visible ? (
                 <div className='list'>
-                    <h3 className='list-title'>{this.state.listTitle}<span onClick={this.deleteList} className="fas fa-trash-alt list-title-icon trash-can"></span></h3>
+                    <h3 className='list-title'>
+                        {this.state.listTitle}
+                        <span onClick={this.deleteList} className="fas fa-trash-alt list-title-icon trash-can"></span>
+                        <span onClick={this.changeListName} className='fas fa-pencil-alt list-title-icon'></span>
+                        </h3>
                     <AddListItem handleAdd={this.addItemToList} />
                     <div className='list-items'>
                         {this.renderListItems(ListLogic.orderListItemsByStarred(this.state.listItems))}
@@ -429,10 +435,12 @@ class App extends React.Component {
         this.toggleCreateNewListMode = this.toggleCreateNewListMode.bind(this);
         this.changeToEditingListItemMode = this.changeToEditingListItemMode.bind(this);
         this.closeEditItemScreen = this.closeEditItemScreen.bind(this);
+        this.updateListItem = this.updateListItem.bind(this);
         this.saveListItem = this.saveListItem.bind(this);
         this.removeItemFromList = this.removeItemFromList.bind(this);
         this.showEditItemScreenIfNeeded = this.showEditItemScreenIfNeeded.bind(this);
         this.deleteList = this.deleteList.bind(this);
+        this.changeListName = this.changeListName.bind(this);
         this.render = this.render.bind(this);
         this.state = {
             selectedListIndex: 0,
@@ -464,8 +472,17 @@ class App extends React.Component {
         })
     }
 
+    updateListItem(item) {
+        ListLogic.updateListItem(item, ListLogic.returnArrayOfListIDs()[this.state.selectedListIndex]);
+        if (this.state.selectedListItem.id === item.id && this.state.isEditingListItem) {
+            this.setState({
+                selectedListItem: item
+            })
+        }
+    }
+
     saveListItem(item) {
-        ListLogic.updateListItem(item, ListLogic.returnArrayOfListIDs()[this.state.selectedListIndex])
+        this.updateListItem(item, ListLogic.returnArrayOfListIDs()[this.state.selectedListIndex])
         this.closeEditItemScreen();
     }
 
@@ -481,6 +498,15 @@ class App extends React.Component {
             selectedListIndex: arrayOfTitles.length - 1,
             allLists: arrayOfTitles,
             isCreatingNewList: false
+        })
+    }
+
+    changeListName() {
+        console.log("got to app - chaning list name");
+        console.log(ListLogic.allLists)
+        var arrayOfTitles = ListLogic.returnArrayOfListTitles();
+        this.setState({
+            allLists: arrayOfTitles
         })
     }
 
@@ -506,7 +532,7 @@ class App extends React.Component {
 
     renderLists() {
         var arrayOfIDs = ListLogic.returnArrayOfListIDs();
-        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList} handleEditItem={this.changeToEditingListItemMode} />)
+        return this.state.allLists.map((listTitle, index) => <List key={index} listTitle={listTitle} listID={arrayOfIDs[index]} visible={this.state.selectedListIndex === index ? true : false} handleDelete={this.deleteList} handleChangeListName={this.changeListName} handleEditItem={this.changeToEditingListItemMode} handleUpdateItem={this.updateListItem}/>)
     }
 
     showProperComponent() {

@@ -138,7 +138,7 @@ h3.list-title {
     cursor: pointer;
 }
 
-.list-title .trash-can:hover {
+.list-title .list-title-icon:hover {
     color:rgb(221,221,221);
 }
 
@@ -290,6 +290,10 @@ h3.list-title {
 .card .card-body .task-container, .card .card-body .checkbox-container {
     display:inline-block;
     margin: 0 0.5rem;
+}
+
+.card .card-body .task-container {
+    width:78%;
 }
 
 .no-items-completed-message {
@@ -470,7 +474,7 @@ span.starred-item {
     }
 
     .card {
-        height:8vw;
+        height:auto;
         font-size:2vw;
     }
 
@@ -498,7 +502,7 @@ span.starred-item {
 
 @media screen and (max-width:768px) {
     .card {
-        height:10vw;
+        height:auto;
         font-size:3vw;
     }
 
